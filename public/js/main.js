@@ -128,19 +128,26 @@ function initSearch(){
 // ---- Gallery ----
 function initGallery(){
     const grid = $('#grid');
-    const pager = $('#pager');
-    const state = { page: 1, limit: 20, total: 0 };
+    const typeSel = $('#type');
+    const sortSel = $('#sort');
+    const state = { page: 1, limit: 20, total: 0, type: '', sort: 'name_asc' }; // Standardwert für sort
 
     async function loadPage(){
-        const data = await json(`/api/pokemon?page=${state.page}&limit=${state.limit}`);
+        const params = new URLSearchParams({
+            page: state.page,
+            limit: state.limit,
+            type: state.type,
+            sort: state.sort,
+        });
+        const data = await json(`/api/pokemon?${params.toString()}`);
         state.total = data.total;
         grid.innerHTML = data.items.map(it => `
-      <div class="tile" data-id="${it.id}">
-        <img src="${it.sprite || '/public/img/pokeball.svg'}" alt="">
-        <div class="name">${it.name}</div>
-        <button class="fav-btn" title="Favorisieren">♡</button>
-      </div>
-    `).join('');
+            <div class="tile" data-id="${it.id}">
+                <img src="${it.sprite || '/public/img/pokeball.svg'}" alt="">
+                <div class="name">${it.name}</div>
+                <button class="fav-btn" title="Favorisieren">♡</button>
+            </div>
+        `).join('');
 
         $$('.tile', grid).forEach(tile => {
             const id = parseInt(tile.dataset.id, 10);
@@ -169,10 +176,26 @@ function initGallery(){
         $('#prev').disabled = state.page <= 1;
         $('#next').disabled = state.page >= pages;
     }
+
     function update(btn, active){ btn.textContent = active ? '❤' : '♡'; btn.classList.toggle('active', active); }
 
     $('#prev').addEventListener('click', () => { state.page--; loadPage(); });
     $('#next').addEventListener('click', () => { state.page++; loadPage(); });
+
+    typeSel.addEventListener('change', () => {
+        state.type = typeSel.value;
+        state.page = 1; // Reset to first page
+        loadPage();
+    });
+
+    sortSel.addEventListener('change', () => {
+        state.sort = sortSel.value;
+        state.page = 1; // Reset to first page
+        loadPage();
+    });
+
+    // Set default sort value in the dropdown
+    sortSel.value = state.sort;
 
     loadPage();
 }
