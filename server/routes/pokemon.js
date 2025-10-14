@@ -9,7 +9,7 @@ const { getPokemonDetails } = require('../services/cache');
 
 router.get('/', async (req, res) => {
     try {
-        const { search, page = 1, limit = 20 } = req.query;
+        const { search, page = 1, limit = 20, type, sort = 'id_asc' } = req.query;
 
         if (search) {
             const term = `%${search.toLowerCase()}%`;
@@ -24,11 +24,32 @@ router.get('/', async (req, res) => {
         const l = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 50);
         const offset = (p - 1) * l;
 
-        const [rows] = await pool.query(
-            'SELECT id, name, sprite FROM pokemon ORDER BY id ASC LIMIT ? OFFSET ?',
-            [l, offset]
-        );
-        const [[{ total }]] = await pool.query('SELECT COUNT(*) as total FROM pokemon');
+        // Build dynamic filters and sorting
+        const filters = [];
+        const params = [];
+
+        if (type) {
+            filters.push('id IN (SELECT pokemon_id FROM pokemon_types WHERE type = ?)');
+            params.push(type);
+        }
+
+        let orderBy = 'id ASC';
+        if (sort === 'name_asc') orderBy = 'name ASC';
+        else if (sort === 'name_desc') orderBy = 'name DESC';
+        else if (sort === 'id_desc') orderBy = 'id DESC';
+
+        const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '';
+        const query = `
+            SELECT id, name, sprite
+            FROM pokemon
+            ${whereClause}
+            ORDER BY ${orderBy}
+            LIMIT ? OFFSET ?
+        `;
+        params.push(l, offset);
+
+        const [rows] = await pool.query(query, params);
+        const [[{ total }]] = await pool.query(`SELECT COUNT(*) as total FROM pokemon ${whereClause}`, params.slice(0, -2));
         res.json({ items: rows, page: p, limit: l, total });
     } catch (e) {
         console.error(e);
