@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: pokedex
+      MYSQL_USER: pokedex
+      MYSQL_PASSWORD: pokedex
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_USER: pokedex
+      DB_PASS: pokedex
+      DB_NAME: pokedex
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

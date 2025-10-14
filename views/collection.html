@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Pokedex – PokeCollection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/public/css/styles.css" rel="stylesheet">
+</head>
+<body data-page="collection">
+<nav class="nav">
+    <div class="left logo">
+        <img src="/public/img/pokeball.svg" alt="Pokeball">
+        <a href="/">Pokedex</a>
+    </div>
+    <div class="center">
+        <a href="/">PokeSearch</a>
+        <a href="/gallery">PokeGallery</a>
+        <a href="/collection">PokeCollection</a>
+    </div>
+    <div class="right">
+        <a href="/profile">PokeProfile</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+        <label>Filter Typ:
+            <select id="type">
+                <option value="">Alle</option>
+                <option>fire</option><option>water</option><option>grass</option><option>electric</option>
+                <option>bug</option><option>normal</option><option>poison</option><option>ground</option>
+                <option>fairy</option><option>ice</option><option>fighting</option><option>psychic</option>
+                <option>rock</option><option>ghost</option><option>dragon</option><option>steel</option><option>dark</option><option>flying</option>
+            </select>
+        </label>
+        <label>Sortieren:
+            <select id="sort">
+                <option value="name_asc">Name (A–Z)</option>
+                <option value="name_desc">Name (Z–A)</option>
+                <option value="atk_asc">Attack (↑)</option>
+                <option value="atk_desc">Attack (↓)</option>
+            </select>
+        </label>
+    </div>
+
+    <div id="list" class="grid"></div>
+</div>
+
+<script src="/public/js/main.js"></script>
+</body>
+</html>

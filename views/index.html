@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Pokedex – PokeSearch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/public/css/styles.css" rel="stylesheet">
+</head>
+<body data-page="index">
+<nav class="nav">
+    <div class="left logo">
+        <img src="/public/img/pokeball.svg" alt="Pokeball">
+        <a href="/">Pokedex</a>
+    </div>
+    <div class="center">
+        <a href="/">PokeSearch</a>
+        <a href="/gallery">PokeGallery</a>
+        <a href="/collection">PokeCollection</a>
+    </div>
+    <div class="right">
+        <a href="/profile">PokeProfile</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card search-wrap">
+        <input id="search" class="search-input" type="text" placeholder="Pokémon suchen... (z. B. pika)">
+        <div id="suggestions" class="suggestions"></div>
+    </div>
+
+    <div id="detail" style="margin-top:12px"></div>
+
+    <div class="card facts">
+        <div style="font-weight:700">Fakt:</div>
+        <div id="fact-text">—</div>
+        <div class="progress"><div class="progressbar"></div></div>
+    </div>
+</div>
+
+<script src="/public/js/main.js"></script>
+</body>
+</html>

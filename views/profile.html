@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Pokedex – PokeProfile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/public/css/styles.css" rel="stylesheet">
+</head>
+<body data-page="profile">
+<nav class="nav">
+    <div class="left logo">
+        <img src="/public/img/pokeball.svg" alt="Pokeball">
+        <a href="/">Pokedex</a>
+    </div>
+    <div class="center">
+        <a href="/">PokeSearch</a>
+        <a href="/gallery">PokeGallery</a>
+        <a href="/collection">PokeCollection</a>
+    </div>
+    <div class="right">
+        <a href="/profile">PokeProfile</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="card" style="display:grid; gap:12px; grid-template-columns: repeat(3, 1fr);">
+        <div class="tile">
+            <div style="font-weight:700">Gesammelte Pokémon</div>
+            <div id="stat-favs" style="font-size:28px; font-weight:800">0</div>
+        </div>
+        <div class="tile">
+            <div style="font-weight:700">Gesehene Pokémon</div>
+            <div id="stat-seen" style="font-size:28px; font-weight:800">0</div>
+        </div>
+        <div class="tile">
+            <div style="font-weight:700">Häufigster Typ</div>
+            <div id="stat-type" style="font-size:22px; font-weight:800; text-transform:capitalize">-</div>
+        </div>
+    </div>
+</div>
+
+<script src="/public/js/main.js"></script>
+</body>
+</html>
