@@ -1,11 +1,11 @@
 /*
-  Lädt Schema, füllt Facts und lädt die ersten 151 Pokémon (Gen 1) in die DB.
+  Lädt Schema, füllt Facts und lädt alle Pokémon-Spezies in die DB.
 */
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 const pool = require('../db/pool');
-const { getPokemonFromAPI } = require('../services/pokeapi');
+const { getPokemonFromAPI, getPokemonSpeciesCount } = require('../services/pokeapi');
 
 async function run() {
     try {
@@ -34,8 +34,12 @@ async function run() {
             await pool.query('INSERT INTO facts (text) VALUES ?', [values]);
         }
 
-        console.log('Lade Pokémon 1..151 von der PokeAPI...');
-        for (let id = 1; id <= 151; id++) {
+        console.log('Ermittle die Gesamtanzahl der Pokémon-Spezies...');
+        const totalSpecies = await getPokemonSpeciesCount();
+        console.log(`Es gibt insgesamt ${totalSpecies} Pokémon-Spezies.`);
+
+        console.log('Lade alle Pokémon-Spezies von der PokeAPI...');
+        for (let id = 1; id <= totalSpecies; id++) {
             const p = await getPokemonFromAPI(id);
             if (!p) {
                 console.log('Überspringe', id);

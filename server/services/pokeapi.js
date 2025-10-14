@@ -1,28 +1,32 @@
-// Node 18+ hat fetch eingebaut
-const BASE = 'https://pokeapi.co/api/v2/pokemon/';
+const axios = require('axios');
 
-async function getPokemonFromAPI(idOrName) {
-    const res = await fetch(BASE + idOrName);
-    if (!res.ok) return null;
-    const d = await res.json();
-
-    const types = d.types.map(t => t.type.name);
-    const stats = {
-        hp: d.stats.find(s => s.stat.name === 'hp')?.base_stat ?? 0,
-        attack: d.stats.find(s => s.stat.name === 'attack')?.base_stat ?? 0,
-        defense: d.stats.find(s => s.stat.name === 'defense')?.base_stat ?? 0,
-        speed: d.stats.find(s => s.stat.name === 'speed')?.base_stat ?? 0
-    };
-
-    return {
-        id: d.id,
-        name: d.name,
-        sprite: d.sprites.other['official-artwork']?.front_default || d.sprites.front_default || '',
-        height: d.height,
-        weight: d.weight,
-        types,
-        stats
-    };
+async function getPokemonSpeciesCount() {
+    const response = await axios.get('https://pokeapi.co/api/v2/pokemon-species');
+    return response.data.count;
 }
 
-module.exports = { getPokemonFromAPI };
+async function getPokemonFromAPI(id) {
+    try {
+        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+        const data = response.data;
+        return {
+            id: data.id,
+            name: data.name,
+            sprite: data.sprites.front_default,
+            height: data.height,
+            weight: data.weight,
+            stats: {
+                hp: data.stats.find(s => s.stat.name === 'hp')?.base_stat || 0,
+                attack: data.stats.find(s => s.stat.name === 'attack')?.base_stat || 0,
+                defense: data.stats.find(s => s.stat.name === 'defense')?.base_stat || 0,
+                speed: data.stats.find(s => s.stat.name === 'speed')?.base_stat || 0,
+            },
+            types: data.types.map(t => t.type.name)
+        };
+    } catch (error) {
+        console.error(`Fehler beim Abrufen von Pokémon #${id}:`, error.message);
+        return null;
+    }
+}
+
+module.exports = { getPokemonFromAPI, getPokemonSpeciesCount };
