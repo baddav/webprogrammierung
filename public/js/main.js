@@ -151,9 +151,9 @@ function initGallery(){
 
         $$('.tile', grid).forEach(tile => {
             const id = parseInt(tile.dataset.id, 10);
-            tile.addEventListener('click', e => {
+            tile.addEventListener('click', async e => {
                 if (e.target.classList.contains('fav-btn')) return;
-                window.location.href = `/?id=${id}`;
+                await showDetail(id);
             });
             const btn = $('.fav-btn', tile);
             const favs = getFavs();
@@ -176,6 +176,71 @@ function initGallery(){
         $('#prev').disabled = state.page <= 1;
         $('#next').disabled = state.page >= pages;
     }
+
+    function updateFavBtn(btn, active) {
+        btn.textContent = active ? '❤' : '♡';
+        btn.classList.toggle('active', active);
+    }
+
+    async function showDetail(id) {
+        const popup = document.getElementById('popup');
+        const detail = document.getElementById('popup-detail');
+        const closeBtn = document.getElementById('closePopup');
+
+        try {
+            const p = await json(`/api/pokemon/${id}`);
+            detail.innerHTML = `
+                <div class="card detail">
+                    <img src="${p.sprite || '/public/img/pokeball.svg'}" alt="${p.name}">
+                    <div>
+                        <h2 style="margin:0; text-transform:capitalize">${p.name} <small>#${p.id}</small></h2>
+                        <div class="badges" style="margin:8px 0">${p.types.map(typeBadge).join('')}</div>
+                        <div class="kv">
+                            <div>HP</div><div>${p.stats.hp}</div>
+                            <div>Attack</div><div>${p.stats.attack}</div>
+                            <div>Defense</div><div>${p.stats.defense}</div>
+                            <div>Speed</div><div>${p.stats.speed}</div>
+                            <div>Größe</div><div>${p.height}</div>
+                            <div>Gewicht</div><div>${p.weight}</div>
+                        </div>
+                        <button class="fav-btn" id="favBtn" title="Favorisieren">♡</button>
+                    </div>
+                </div>
+            `;
+
+            // Popup sichtbar machen
+            popup.classList.remove('hidden');
+
+            // Favoriten-Button-Logik
+            const favBtn = document.getElementById('favBtn');
+            let favs = getFavs();
+            let isFav = favs.includes(p.id);
+            updateFavBtn(favBtn, isFav);
+
+            favBtn.addEventListener('click', async () => {
+                isFav = !isFav;
+                if (isFav) favs.push(p.id);
+                else favs = favs.filter(x => x !== p.id);
+                setFavs(favs);
+                updateFavBtn(favBtn, isFav);
+                await toggleFavorite(p.id, isFav);
+            });
+
+            // Schließen-Button
+            closeBtn.onclick = () => popup.classList.add('hidden');
+
+            // Auch schließen, wenn man außerhalb klickt
+            popup.onclick = (e) => {
+                if (e.target === popup) popup.classList.add('hidden');
+            };
+
+        } catch {
+            detail.innerHTML = `<div class="card">Nicht gefunden.</div>`;
+            popup.classList.remove('hidden');
+        }
+    }
+
+
 
     function update(btn, active){ btn.textContent = active ? '❤' : '♡'; btn.classList.toggle('active', active); }
 
@@ -213,23 +278,93 @@ function initCollection(){
         const data = await json('/api/favorites?' + params.toString());
 
         list.innerHTML = data.map(d => `
-      <div class="tile" data-id="${d.id}">
-        <img src="${d.sprite || '/public/img/pokeball.svg'}" alt="">
-        <div class="name">${d.name}</div>
-        <div style="margin-top:6px;font-size:12px">ATK: ${d.attack}</div>
-        <button class="fav-btn active" title="Entfernen">❤</button>
-      </div>
-    `).join('');
+          <div class="tile" data-id="${d.id}">
+            <img src="${d.sprite || '/public/img/pokeball.svg'}" alt="">
+            <div class="name">${d.name}</div>
+            <div style="margin-top:6px;font-size:12px">ATK: ${d.attack}</div>
+            <button class="fav-btn active" title="Entfernen">❤</button>
+          </div>
+        `).join('');
 
         $$('.tile', list).forEach(tile => {
             const id = parseInt(tile.dataset.id, 10);
-            $('.fav-btn', tile).addEventListener('click', async () => {
+            const btn = $('.fav-btn', tile);
+
+            // Klick auf Pokémon-Tile → Popup öffnen
+            tile.addEventListener('click', e => {
+                if (e.target === btn) return; // Wenn Fav-Button, nichts tun
+                showDetail(id);
+            });
+
+            // Favoriten-Button entfernen
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
                 let favs = getFavs().filter(x => x !== id);
                 setFavs(favs);
                 await toggleFavorite(id, false);
                 await loadFavs();
             });
         });
+    }
+
+    async function showDetail(id){
+        const popup = document.getElementById('popup');
+        const detail = document.getElementById('popup-detail');
+        const closeBtn = document.getElementById('closePopup');
+
+        try {
+            const p = await json(`/api/pokemon/${id}`);
+            detail.innerHTML = `
+                <div class="card detail">
+                    <img src="${p.sprite || '/public/img/pokeball.svg'}" alt="${p.name}">
+                    <div>
+                        <h2 style="margin:0; text-transform:capitalize">${p.name} <small>#${p.id}</small></h2>
+                        <div class="badges" style="margin:8px 0">${p.types.map(typeBadge).join('')}</div>
+                        <div class="kv">
+                            <div>HP</div><div>${p.stats.hp}</div>
+                            <div>Attack</div><div>${p.stats.attack}</div>
+                            <div>Defense</div><div>${p.stats.defense}</div>
+                            <div>Speed</div><div>${p.stats.speed}</div>
+                            <div>Größe</div><div>${p.height}</div>
+                            <div>Gewicht</div><div>${p.weight}</div>
+                        </div>
+                        <button class="fav-btn" id="favBtn" title="Favorisieren">♡</button>
+                    </div>
+                </div>
+            `;
+
+            // Popup sichtbar machen
+            popup.classList.remove('hidden');
+
+            // Favoriten-Button Logik
+            const favBtn = document.getElementById('favBtn');
+            let favs = getFavs();
+            let isFav = favs.includes(p.id);
+            updateFavBtn(favBtn, isFav);
+
+            favBtn.addEventListener('click', async () => {
+                isFav = !isFav;
+                if (isFav) favs.push(p.id);
+                else favs = favs.filter(x => x !== p.id);
+                setFavs(favs);
+                updateFavBtn(favBtn, isFav);
+                await toggleFavorite(p.id, isFav);
+                await loadFavs(); // Refresh Collection, falls Favorit entfernt
+            });
+
+            // Schließen-Button
+            closeBtn.onclick = () => popup.classList.add('hidden');
+            popup.onclick = (e) => { if (e.target === popup) popup.classList.add('hidden'); };
+
+        } catch {
+            detail.innerHTML = `<div class="card">Nicht gefunden.</div>`;
+            popup.classList.remove('hidden');
+        }
+    }
+
+    function updateFavBtn(btn, active) {
+        btn.textContent = active ? '❤' : '♡';
+        btn.classList.toggle('active', active);
     }
 
     typeSel.addEventListener('change', loadFavs);
