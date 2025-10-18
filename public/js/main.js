@@ -268,49 +268,65 @@ function initGallery(){
 // ---- Collection ----
 function initCollection(){
     const list = $('#list');
-    const typeSel = $('#type');
-    const sortSel = $('#sort');
 
+    // Lädt alle Favoriten vom Server und rendert sie
     async function loadFavs(){
-        const params = new URLSearchParams();
-        if (typeSel.value) params.append('type', typeSel.value);
-        if (sortSel.value) params.append('sort', sortSel.value);
-        const data = await json('/api/favorites?' + params.toString());
+        try {
+            // /api/favorites liefert eine Liste mit Favoriten (wie schon vorher)
+            const data = await json('/api/favorites');
 
-        list.innerHTML = data.map(d => `
-          <div class="tile" data-id="${d.id}">
-            <img src="${d.sprite || '/public/img/pokeball.svg'}" alt="">
-            <div class="name">${d.name}</div>
-            <div style="margin-top:6px;font-size:12px">ATK: ${d.attack}</div>
-            <button class="fav-btn active" title="Entfernen">❤</button>
-          </div>
-        `).join('');
+            // Wenn keine Favoriten, Zeige Hinweis
+            if (!data || data.length === 0) {
+                list.innerHTML = `<div class="card">Keine Favoriten vorhanden.</div>`;
+                return;
+            }
 
-        $$('.tile', list).forEach(tile => {
-            const id = parseInt(tile.dataset.id, 10);
-            const btn = $('.fav-btn', tile);
+            list.innerHTML = data.map(d => `
+              <div class="tile" data-id="${d.id}">
+                <img src="${d.sprite || '/public/img/pokeball.svg'}" alt="">
+                <div class="name">${d.name}</div>
+                <div style="margin-top:6px;font-size:12px">ATK: ${d.attack ?? '-'}</div>
+                <button class="fav-btn active" title="Entfernen">❤</button>
+              </div>
+            `).join('');
 
-            // Klick auf Pokémon-Tile → Popup öffnen
-            tile.addEventListener('click', e => {
-                if (e.target === btn) return; // Wenn Fav-Button, nichts tun
-                showDetail(id);
+            // Event-Listener setzen
+            $$('.tile', list).forEach(tile => {
+                const id = parseInt(tile.dataset.id, 10);
+                const btn = $('.fav-btn', tile);
+
+                // Klick auf Tile -> Popup öffnen (außer wenn Fav-Button angeklickt)
+                tile.addEventListener('click', (e) => {
+                    if (e.target === btn) return;
+                    showDetail(id);
+                });
+
+                // Entfernen aus Favoriten
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    // lokal und serverseitig entfernen, danach Liste neu laden
+                    let favs = getFavs().filter(x => x !== id);
+                    setFavs(favs);
+                    await toggleFavorite(id, false);
+                    await loadFavs();
+                });
             });
-
-            // Favoriten-Button entfernen
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                let favs = getFavs().filter(x => x !== id);
-                setFavs(favs);
-                await toggleFavorite(id, false);
-                await loadFavs();
-            });
-        });
+        } catch (err) {
+            console.error('Fehler beim Laden der Favoriten:', err);
+            list.innerHTML = `<div class="card">Fehler beim Laden der Favoriten.</div>`;
+        }
     }
 
+    // Detail-Fenster (Popup) für Collection — identisch zur Gallery-Implementierung
     async function showDetail(id){
         const popup = document.getElementById('popup');
         const detail = document.getElementById('popup-detail');
         const closeBtn = document.getElementById('closePopup');
+
+        if (!popup || !detail || !closeBtn) {
+            console.warn('Popup-Elemente nicht gefunden.');
+            return;
+        }
 
         try {
             const p = await json(`/api/pokemon/${id}`);
@@ -349,26 +365,30 @@ function initCollection(){
                 setFavs(favs);
                 updateFavBtn(favBtn, isFav);
                 await toggleFavorite(p.id, isFav);
-                await loadFavs(); // Refresh Collection, falls Favorit entfernt
+                await loadFavs(); // aktualisiere Collection falls Favorit entfernt
             });
 
             // Schließen-Button
             closeBtn.onclick = () => popup.classList.add('hidden');
-            popup.onclick = (e) => { if (e.target === popup) popup.classList.add('hidden'); };
 
-        } catch {
+            // Klick auf Overlay schließt ebenfalls
+            popup.onclick = (e) => {
+                if (e.target === popup) popup.classList.add('hidden');
+            };
+        } catch (err) {
+            console.error('Fehler beim Laden der Details:', err);
             detail.innerHTML = `<div class="card">Nicht gefunden.</div>`;
             popup.classList.remove('hidden');
         }
     }
 
     function updateFavBtn(btn, active) {
+        if (!btn) return;
         btn.textContent = active ? '❤' : '♡';
         btn.classList.toggle('active', active);
     }
 
-    typeSel.addEventListener('change', loadFavs);
-    sortSel.addEventListener('change', loadFavs);
+    // initial load
     loadFavs();
 }
 

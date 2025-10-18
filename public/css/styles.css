@@ -161,14 +161,16 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
   display: none;
 }
 
+
 .popup-content {
   background: white;
   border-radius: 12px;
-  padding: 20px;
-  max-width: 400px;
+  padding: 32px 32px;
+  max-width: 420px;
   width: 90%;
   position: relative;
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  text-align: center;
 }
 
 .close-btn {
@@ -179,4 +181,28 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
   border: none;
   font-size: 20px;
   cursor: pointer;
+}
+.popup-content .kv {
+  text-align: left;
+  margin: 10px auto;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 4px 12px;
+  max-width: 240px;
+}
+.top-bar {
+  width: 100%;
+  background-color: #f6f6f6;
+  padding: 12px 20px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.top-bar h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: 0.5px;
 }
