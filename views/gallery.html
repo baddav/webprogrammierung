@@ -23,6 +23,28 @@
 </nav>
 
 <div class="container">
+    <div class="card" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+        <label>Filter Typ:
+            <select id="type">
+                <option value="">Alle</option>
+                <option>fire</option><option>water</option><option>grass</option><option>electric</option>
+                <option>bug</option><option>normal</option><option>poison</option><option>ground</option>
+                <option>fairy</option><option>ice</option><option>fighting</option><option>psychic</option>
+                <option>rock</option><option>ghost</option><option>dragon</option><option>steel</option><option>dark</option><option>flying</option>
+            </select>
+        </label>
+        <label>Sortieren:
+            <select id="sort">
+                <option value="name_asc">Name (A–Z)</option>
+                <option value="name_desc">Name (Z–A)</option>
+                <option value="atk_asc">Attack (↑)</option>
+                <option value="atk_desc">Attack (↓)</option>
+            </select>
+        </label>
+    </div>
+</div>
+
+<div class="container">
     <div class="pager">
         <button class="btn" id="prev">Zurück</button>
         <div id="pageinfo">Seite 1</div>
@@ -30,8 +52,17 @@
     </div>
 
     <div id="grid" class="grid"></div>
+
+    <div id="detail" style="margin-top:20px"></div>
 </div>
 
 <script src="/public/js/main.js"></script>
+
+<div id="popup" class="popup hidden">
+    <div class="popup-content">
+        <button id="closePopup" class="close-btn">✕</button>
+        <div id="popup-detail"></div>
+    </div>
+</div>
 </body>
 </html>
