@@ -1,16 +1,33 @@
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
+/**
+ * Erstellt ein Badge-Element für einen Pokémon-Typ.
+ * @param t
+ * @returns {string}
+ */
 function typeBadge(t){
     return `<span class="badge ${t}">${t}</span>`;
 }
 
+/**
+ * Führt einen Fetch-Request aus und gibt das JSON-Ergebnis zurück.
+ * @param url
+ * @param opts
+ * @returns {Promise<any>}
+ */
 async function json(url, opts){
     const res = await fetch(url, opts);
     if (!res.ok) throw new Error('Request failed');
     return res.json();
 }
 
+/**
+ * Erstellt eine debouncete Funktion.
+ * @param fn
+ * @param ms
+ * @returns {(function(...[*]): void)|*}
+ */
 function debounce(fn, ms){
     let t;
     return (...args) => {
@@ -19,14 +36,34 @@ function debounce(fn, ms){
     };
 }
 
+/**
+ * Gibt den LocalStorage-Schlüssel für Favoriten zurück.
+ * @returns {string}
+ */
 function favKey(){ return 'favorites'; }
+
+/**
+ * Lädt die Favoriten aus dem LocalStorage.
+ * @returns {any|*[]}
+ */
 function getFavs(){
     try { return JSON.parse(localStorage.getItem(favKey())||'[]'); } catch { return []; }
 }
+
+/**
+ * Speichert die Favoriten im LocalStorage.
+ * @param arr
+ */
 function setFavs(arr){
     localStorage.setItem(favKey(), JSON.stringify(arr));
 }
 
+/**
+ * Fügt oder entfernt ein Pokémon von den Favoriten auf dem Server.
+ * @param id
+ * @param active
+ * @returns {Promise<void>}
+ */
 async function toggleFavorite(id, active){
     if (active){
         await fetch(`/api/favorites/${id}`, { method:'POST' });
@@ -35,7 +72,80 @@ async function toggleFavorite(id, active){
     }
 }
 
+
+// ----------------------------------------------------------------
+// NEUE ZENTRALE FUNKTIONEN (Refactoring)
+// ----------------------------------------------------------------
+
+/**
+ * NEU: Aktualisiert das Aussehen eines Favoriten-Buttons (Herz-Icon und Klasse).
+ * Diese Funktion war vorher in initSearch, initGallery und initCollection dupliziert.
+ * @param {HTMLElement} btn Der Button.
+ * @param {boolean} active Ob der Favorit aktiv ist.
+ */
+function updateFavBtn(btn, active) {
+    if (!btn) return;
+    btn.textContent = active ? '❤' : '♡';
+    btn.classList.toggle('active', active);
+}
+
+/**
+ * NEU: Kapselt die gesamte Logik zum Umschalten eines Favoriten.
+ * Ändert LocalStorage, ruft die Server-API auf und gibt den neuen Status zurück.
+ * @param {number} id Die Pokémon-ID.
+ * @returns {Promise<boolean>} Der neue Favoritenstatus (true=favorisiert, false=nicht).
+ */
+async function handleFavToggle(id) {
+    let favs = getFavs();
+    const isFav = favs.includes(id);
+    const newState = !isFav; // Der neue Status
+
+    if (newState) {
+        favs.push(id);
+    } else {
+        favs = favs.filter(x => x !== id);
+    }
+
+    setFavs(favs); // Lokalen Speicher aktualisieren
+    await toggleFavorite(id, newState); // Server synchronisieren
+
+    return newState; // Neuen Status zurückgeben
+}
+
+/**
+ * NEU: Generiert das HTML für die Pokémon-Detailansicht.
+ * Dieser HTML-Block war in initSearch, initGallery und initCollection dupliziert.
+ * @param {object} p Das Pokémon-Objekt von der API.
+ * @returns {string} Den HTML-String für die Detailkarte.
+ */
+function renderPokemonDetail(p) {
+    return `
+        <div class="card detail">
+          <img src="${p.sprite || '/public/img/pokeball.svg'}" alt="${p.name}">
+          <div>
+            <h2 style="margin:0; text-transform:capitalize">${p.name} <small>#${p.id}</small></h2>
+            <div class="badges" style="margin:8px 0">${p.types.map(typeBadge).join('')}</div>
+            <div class="kv">
+              <div>HP</div><div>${p.stats.hp}</div>
+              <div>Attack</div><div>${p.stats.attack}</div>
+              <div>Defense</div><div>${p.stats.defense}</div>
+              <div>Speed</div><div>${p.stats.speed}</div>
+              <div>Größe</div><div>${p.height}</div>
+              <div>Gewicht</div><div>${p.weight}</div>
+            </div>
+            <button class="fav-btn" id="favBtn" title="Favorisieren">♡</button>
+          </div>
+        </div>
+    `;
+}
+
+// ----------------------------------------------------------------
 // ---- Seiten-Init ----
+// ----------------------------------------------------------------
+
+/**
+ * Initialisiert die Seite basierend auf dem data-page Attribut des body-Tags.
+ */
 document.addEventListener('DOMContentLoaded', () => {
     const page = document.body.dataset.page;
 
@@ -45,7 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (page === 'profile') initProfile();
 });
 
+// ----------------------------------------------------------------
 // ---- PokeSearch ----
+// ----------------------------------------------------------------
+
+/**
+ * Initialisiert die Suchseite.
+ */
 function initSearch(){
     const input = $('#search');
     const sugList = $('#suggestions');
@@ -69,51 +185,38 @@ function initSearch(){
     const debounced = debounce(renderSuggestions, 300);
     input.addEventListener('input', e => debounced(e.target.value.trim()));
 
+    /**
+     * Zeigt die Detailansicht für ein Pokémon an.
+     * @param id
+     * @returns {Promise<void>}
+     */
     async function showDetail(id){
         try{
             const p = await json(`/api/pokemon/${id}`);
             sugList.innerHTML = '';
-            detail.innerHTML = `
-        <div class="card detail">
-          <img src="${p.sprite || '/public/img/pokeball.svg'}" alt="${p.name}">
-          <div>
-            <h2 style="margin:0; text-transform:capitalize">${p.name} <small>#${p.id}</small></h2>
-            <div class="badges" style="margin:8px 0">${p.types.map(typeBadge).join('')}</div>
-            <div class="kv">
-              <div>HP</div><div>${p.stats.hp}</div>
-              <div>Attack</div><div>${p.stats.attack}</div>
-              <div>Defense</div><div>${p.stats.defense}</div>
-              <div>Speed</div><div>${p.stats.speed}</div>
-              <div>Größe</div><div>${p.height}</div>
-              <div>Gewicht</div><div>${p.weight}</div>
-            </div>
-            <button class="fav-btn" id="favBtn" title="Favorisieren">♡</button>
-          </div>
-        </div>
-      `;
+
+            // Verwendet die globale renderPokemonDetail-Funktion
+            detail.innerHTML = renderPokemonDetail(p);
+
             const favBtn = $('#favBtn');
             let favs = getFavs();
             let isFav = favs.includes(p.id);
+
+            // Verwendet die globale updateFavBtn-Funktion
             updateFavBtn(favBtn, isFav);
 
+            /**
+             * Event-Listener verwendet jetzt die globale handleFavToggle-Funktion.
+             */
             favBtn.addEventListener('click', async () => {
-                isFav = !isFav;
-                if (isFav) favs.push(p.id); else favs = favs.filter(x => x !== p.id);
-                setFavs(favs);
+                isFav = await handleFavToggle(p.id);
                 updateFavBtn(favBtn, isFav);
-                await toggleFavorite(p.id, isFav);
             });
         } catch {
             detail.innerHTML = `<div class="card">Nicht gefunden.</div>`;
         }
     }
 
-    function updateFavBtn(btn, active){
-        btn.textContent = active ? '❤' : '♡';
-        btn.classList.toggle('active', active);
-    }
-
-    // Fakten rotieren
     async function loadFact(){
         try{
             const f = await json('/api/facts/next');
@@ -124,63 +227,84 @@ function initSearch(){
     setInterval(loadFact, 10000);
 }
 
+// ----------------------------------------------------------------
 // ---- Gallery ----
+// ----------------------------------------------------------------
+
+/**
+ * Initialisiert die Galerie-Seite.
+ */
 function initGallery(){
     const grid = $('#grid');
     const typeSel = $('#type');
     const sortSel = $('#sort');
-    const state = { page: 1, limit: 20, total: 0, type: '', sort: 'name_asc' }; // Standardwert für sort
+    const state = { page: 1, limit: 20, total: 0, type: '', sort: 'name_asc' };
 
+    /**
+     * Lädt und rendert die aktuelle Seite der Galerie.
+     * @returns {Promise<void>}
+     */
     async function loadPage(){
-        const params = new URLSearchParams({
-            page: state.page,
-            limit: state.limit,
-            type: state.type,
-            sort: state.sort,
-        });
-        const data = await json(`/api/pokemon?${params.toString()}`);
-        state.total = data.total;
-        grid.innerHTML = data.items.map(it => `
-            <div class="tile" data-id="${it.id}">
-                <img src="${it.sprite || '/public/img/pokeball.svg'}" alt="">
-                <div class="name">${it.name}</div>
-                <button class="fav-btn" title="Favorisieren">♡</button>
-            </div>
-        `).join('');
 
-        $$('.tile', grid).forEach(tile => {
-            const id = parseInt(tile.dataset.id, 10);
-            tile.addEventListener('click', async e => {
-                if (e.target.classList.contains('fav-btn')) return;
-                await showDetail(id);
+        // try...catch-Block hinzugefügt, um API-Fehler abzufangen.
+        try {
+            const params = new URLSearchParams({
+                page: state.page,
+                limit: state.limit,
+                type: state.type,
+                sort: state.sort,
             });
-            const btn = $('.fav-btn', tile);
-            const favs = getFavs();
-            const isFav = favs.includes(id);
-            update(btn, isFav);
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                let sFav = getFavs();
-                const curr = sFav.includes(id);
-                if (curr) sFav = sFav.filter(x => x !== id); else sFav.push(id);
-                setFavs(sFav);
-                update(btn, !curr);
-                await toggleFavorite(id, !curr);
-            });
-        });
 
-        // Pager
-        const pages = Math.ceil(state.total / state.limit);
-        $('#pageinfo').textContent = `Seite ${state.page} / ${pages}`;
-        $('#prev').disabled = state.page <= 1;
-        $('#next').disabled = state.page >= pages;
+            const data = await json(`/api/pokemon?${params.toString()}`);
+            state.total = data.total;
+            grid.innerHTML = data.items.map(it => `
+                <div class="tile" data-id="${it.id}">
+                    <img src="${it.sprite || '/public/img/pokeball.svg'}" alt="">
+                    <div class="name">${it.name}</div>
+                    <button class="fav-btn" title="Favorisieren">♡</button>
+                </div>
+            `).join('');
+
+            $$('.tile', grid).forEach(tile => {
+                const id = parseInt(tile.dataset.id, 10);
+                tile.addEventListener('click', async e => {
+                    if (e.target.classList.contains('fav-btn')) return;
+                    await showDetail(id); // Ruft die lokale showDetail-Funktion unten auf
+                });
+                const btn = $('.fav-btn', tile);
+                const favs = getFavs();
+                const isFav = favs.includes(id);
+
+                // Verwendet die globale updateFavBtn-Funktion
+                updateFavBtn(btn, isFav);
+
+                /**
+                 * Event-Listener verwendet jetzt die globale handleFavToggle-Funktion.
+                 */
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const newState = await handleFavToggle(id);
+                    updateFavBtn(btn, newState);
+                });
+            });
+
+            const pages = Math.ceil(state.total / state.limit);
+            $('#pageinfo').textContent = `Seite ${state.page} / ${pages}`;
+            $('#prev').disabled = state.page <= 1;
+            $('#next').disabled = state.page >= pages;
+
+            // catch-Block hinzugefügt
+        } catch (err) {
+            console.error('Fehler beim Laden der Galerie-Seite:', err);
+            grid.innerHTML = `<div class="card">Fehler beim Laden der Pokémon.</div>`;
+        }
     }
 
-    function updateFavBtn(btn, active) {
-        btn.textContent = active ? '❤' : '♡';
-        btn.classList.toggle('active', active);
-    }
-
+    /**
+     * Zeigt die Detailansicht für ein Pokémon im Popup an.
+     * @param id
+     * @returns {Promise<void>}
+     */
     async function showDetail(id) {
         const popup = document.getElementById('popup');
         const detail = document.getElementById('popup-detail');
@@ -188,47 +312,28 @@ function initGallery(){
 
         try {
             const p = await json(`/api/pokemon/${id}`);
-            detail.innerHTML = `
-                <div class="card detail">
-                    <img src="${p.sprite || '/public/img/pokeball.svg'}" alt="${p.name}">
-                    <div>
-                        <h2 style="margin:0; text-transform:capitalize">${p.name} <small>#${p.id}</small></h2>
-                        <div class="badges" style="margin:8px 0">${p.types.map(typeBadge).join('')}</div>
-                        <div class="kv">
-                            <div>HP</div><div>${p.stats.hp}</div>
-                            <div>Attack</div><div>${p.stats.attack}</div>
-                            <div>Defense</div><div>${p.stats.defense}</div>
-                            <div>Speed</div><div>${p.stats.speed}</div>
-                            <div>Größe</div><div>${p.height}</div>
-                            <div>Gewicht</div><div>${p.weight}</div>
-                        </div>
-                        <button class="fav-btn" id="favBtn" title="Favorisieren">♡</button>
-                    </div>
-                </div>
-            `;
 
-            // Popup sichtbar machen
+            // Verwendet die globale renderPokemonDetail-Funktion
+            detail.innerHTML = renderPokemonDetail(p);
+
             popup.classList.remove('hidden');
 
-            // Favoriten-Button-Logik
             const favBtn = document.getElementById('favBtn');
             let favs = getFavs();
             let isFav = favs.includes(p.id);
+
+            // Verwendet die globale updateFavBtn-Funktion
             updateFavBtn(favBtn, isFav);
 
+            /**
+             * Event-Listener verwendet jetzt die globale handleFavToggle-Funktion.
+             */
             favBtn.addEventListener('click', async () => {
-                isFav = !isFav;
-                if (isFav) favs.push(p.id);
-                else favs = favs.filter(x => x !== p.id);
-                setFavs(favs);
+                isFav = await handleFavToggle(p.id);
                 updateFavBtn(favBtn, isFav);
-                await toggleFavorite(p.id, isFav);
             });
 
-            // Schließen-Button
             closeBtn.onclick = () => popup.classList.add('hidden');
-
-            // Auch schließen, wenn man außerhalb klickt
             popup.onclick = (e) => {
                 if (e.target === popup) popup.classList.add('hidden');
             };
@@ -239,42 +344,38 @@ function initGallery(){
         }
     }
 
-
-
-    function update(btn, active){ btn.textContent = active ? '❤' : '♡'; btn.classList.toggle('active', active); }
-
     $('#prev').addEventListener('click', () => { state.page--; loadPage(); });
     $('#next').addEventListener('click', () => { state.page++; loadPage(); });
 
     typeSel.addEventListener('change', () => {
         state.type = typeSel.value;
-        state.page = 1; // Reset to first page
+        state.page = 1;
         loadPage();
     });
 
     sortSel.addEventListener('change', () => {
         state.sort = sortSel.value;
-        state.page = 1; // Reset to first page
+        state.page = 1;
         loadPage();
     });
 
-    // Set default sort value in the dropdown
     sortSel.value = state.sort;
-
     loadPage();
 }
 
+// ----------------------------------------------------------------
 // ---- Collection ----
+// ----------------------------------------------------------------
+
+/**
+ * Initialisiert die Favoriten-Collection-Seite.
+ */
 function initCollection(){
     const list = $('#list');
 
-    // Lädt alle Favoriten vom Server und rendert sie
     async function loadFavs(){
         try {
-            // /api/favorites liefert eine Liste mit Favoriten (wie schon vorher)
             const data = await json('/api/favorites');
-
-            // Wenn keine Favoriten, Zeige Hinweis
             if (!data || data.length === 0) {
                 list.innerHTML = `<div class="card">Keine Favoriten vorhanden.</div>`;
                 return;
@@ -289,25 +390,26 @@ function initCollection(){
               </div>
             `).join('');
 
-            // Event-Listener setzen
             $$('.tile', list).forEach(tile => {
                 const id = parseInt(tile.dataset.id, 10);
                 const btn = $('.fav-btn', tile);
 
-                // Klick auf Tile -> Popup öffnen (außer wenn Fav-Button angeklickt)
                 tile.addEventListener('click', (e) => {
                     if (e.target === btn) return;
-                    showDetail(id);
+                    showDetail(id); // Ruft die lokale showDetail-Funktion unten auf
                 });
 
-                // Entfernen aus Favoriten
+                /**
+                 * HINWEIS: Dieser Handler bleibt unverändert.
+                 * Er ist spezifisch für die Collection (nur entfernen, nicht togglen)
+                 * und muss die Liste danach neu laden (`loadFavs`).
+                 */
                 btn.addEventListener('click', async (e) => {
                     e.stopPropagation();
-                    // lokal und serverseitig entfernen, danach Liste neu laden
                     let favs = getFavs().filter(x => x !== id);
                     setFavs(favs);
                     await toggleFavorite(id, false);
-                    await loadFavs();
+                    await loadFavs(); // Liste neu laden
                 });
             });
         } catch (err) {
@@ -316,7 +418,11 @@ function initCollection(){
         }
     }
 
-    // Detail-Fenster (Popup) für Collection — identisch zur Gallery-Implementierung
+    /**
+     * Zeigt die Detailansicht für ein Pokémon im Popup an.
+     * @param id
+     * @returns {Promise<void>}
+     */
     async function showDetail(id){
         const popup = document.getElementById('popup');
         const detail = document.getElementById('popup-detail');
@@ -329,48 +435,35 @@ function initCollection(){
 
         try {
             const p = await json(`/api/pokemon/${id}`);
-            detail.innerHTML = `
-                <div class="card detail">
-                    <img src="${p.sprite || '/public/img/pokeball.svg'}" alt="${p.name}">
-                    <div>
-                        <h2 style="margin:0; text-transform:capitalize">${p.name} <small>#${p.id}</small></h2>
-                        <div class="badges" style="margin:8px 0">${p.types.map(typeBadge).join('')}</div>
-                        <div class="kv">
-                            <div>HP</div><div>${p.stats.hp}</div>
-                            <div>Attack</div><div>${p.stats.attack}</div>
-                            <div>Defense</div><div>${p.stats.defense}</div>
-                            <div>Speed</div><div>${p.stats.speed}</div>
-                            <div>Größe</div><div>${p.height}</div>
-                            <div>Gewicht</div><div>${p.weight}</div>
-                        </div>
-                        <button class="fav-btn" id="favBtn" title="Favorisieren">♡</button>
-                    </div>
-                </div>
-            `;
 
-            // Popup sichtbar machen
+            // Verwendet die globale renderPokemonDetail-Funktion
+            detail.innerHTML = renderPokemonDetail(p);
+
             popup.classList.remove('hidden');
 
-            // Favoriten-Button Logik
             const favBtn = document.getElementById('favBtn');
             let favs = getFavs();
             let isFav = favs.includes(p.id);
+
+            // Verwendet die globale updateFavBtn-Funktion
             updateFavBtn(favBtn, isFav);
 
+            /**
+             * Verwendet handleFavToggle, aber mit einer ZUSATZLOGIK:
+             * Wenn ein Favorit entfernt wird (!newState), muss die Collection-Liste
+             * im Hintergrund neu geladen werden.
+             */
             favBtn.addEventListener('click', async () => {
-                isFav = !isFav;
-                if (isFav) favs.push(p.id);
-                else favs = favs.filter(x => x !== p.id);
-                setFavs(favs);
-                updateFavBtn(favBtn, isFav);
-                await toggleFavorite(p.id, isFav);
-                await loadFavs(); // aktualisiere Collection falls Favorit entfernt
+                const newState = await handleFavToggle(p.id);
+                updateFavBtn(favBtn, newState);
+
+                // SPEZIALFALL: Wenn Favorit entfernt wurde, Liste neu laden
+                if (!newState) {
+                    await loadFavs();
+                }
             });
 
-            // Schließen-Button
             closeBtn.onclick = () => popup.classList.add('hidden');
-
-            // Klick auf Overlay schließt ebenfalls
             popup.onclick = (e) => {
                 if (e.target === popup) popup.classList.add('hidden');
             };
@@ -381,17 +474,16 @@ function initCollection(){
         }
     }
 
-    function updateFavBtn(btn, active) {
-        if (!btn) return;
-        btn.textContent = active ? '❤' : '♡';
-        btn.classList.toggle('active', active);
-    }
-
-    // initial load
     loadFavs();
 }
 
+// ----------------------------------------------------------------
 // ---- Profile ----
+// ----------------------------------------------------------------
+
+/**
+ * Initialisiert die Profil-Seite.
+ */
 function initProfile(){
     const favsEl = $('#stat-favs');
     const seenEl = $('#stat-seen');
