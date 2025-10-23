@@ -13,10 +13,18 @@ router.get('/', async (req, res) => {
 
         if (search) {
             const term = `%${search.toLowerCase()}%`;
-            const [rows] = await pool.query(
-                'SELECT id, name, sprite FROM pokemon WHERE LOWER(name) LIKE ? ORDER BY name ASC LIMIT 10',
-                [term]
-            );
+            const starts = `${search.toLowerCase()}%`;
+
+            const [rows] = await pool.query(`
+                SELECT id, name, sprite 
+                FROM pokemon 
+                WHERE LOWER(name) LIKE ? 
+                ORDER BY 
+                    (CASE WHEN LOWER(name) LIKE ? THEN 0 ELSE 1 END), 
+                    name ASC
+                LIMIT 10
+            `, [term, starts]);
+
             return res.json(rows);
         }
 
