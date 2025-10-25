@@ -43,9 +43,15 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-
+/**
+ * Definiert eine GET-Route, um alle favorisierten Pokémon abzurufen.
+ */
 router.get('/', async (_req, res) => {
     try {
+
+        /**
+         * Ruft alle favorisierten Pokémon aus der Datenbank ab, sortiert nach Name aufsteigend.
+         */
         const [rows] = await pool.query(
             `
                 SELECT p.id, p.name, p.sprite
