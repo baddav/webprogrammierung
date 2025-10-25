@@ -15,7 +15,7 @@ async function run() {
             await pool.query(stmt);
         }
 
-        console.log('Fakten füllen (einmalig) ...');
+        console.log('Fakten füllen...');
         const facts = [
             'Pikachu ist das bekannteste Pokémon.',
             'Glurak ist der finale Starter von Glumanda.',

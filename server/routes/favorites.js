@@ -1,8 +1,21 @@
+/**
+ * Express ist ein zentrales Framework, dass für den Aufbau eines Webservers in Node.js benötigt wird.
+ */
 const express = require('express');
+
+/**
+ * Router-Objekt von Express wird erstellt, um Routen zu definieren.
+ */
 const router = express.Router();
+
+/**
+ * Datenbank-Pool für die Verbindung zur Datenbank.
+ */
 const pool = require('../db/pool');
 
-// POST /api/favorites/:id
+/**
+ * Definiert eine POST-Route, um ein Pokémon zu den Favoriten hinzuzufügen.
+ */
 router.post('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id, 10);
@@ -16,7 +29,9 @@ router.post('/:id', async (req, res) => {
     }
 });
 
-// DELETE /api/favorites/:id
+/**
+ * Definiert eine DELETE-Route, um ein Pokémon aus den Favoriten zu entfernen.
+ */
 router.delete('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id, 10);
