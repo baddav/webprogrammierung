@@ -3,8 +3,8 @@ services:
     image: mysql:8
     environment:
       MYSQL_DATABASE: pokedex
-      MYSQL_USER: pokedex
-      MYSQL_PASSWORD: pokedex
+      MYSQL_USER: admin1
+      MYSQL_PASSWORD: 1234
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "3307:3306"
@@ -20,12 +20,8 @@ services:
     build: .
     ports:
       - "3000:3000"
-    environment:
-      PORT: 3000
-      DB_HOST: db
-      DB_USER: pokedex
-      DB_PASS: pokedex
-      DB_NAME: pokedex
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
