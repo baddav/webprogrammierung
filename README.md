@@ -6,6 +6,10 @@ Einfacher, funktionsfähiger Pokedex:
 - **Frontend**: Vanilla HTML/CSS/JS
 - **Datenquelle**: [PokeAPI](https://pokeapi.co/)
 
+## env Variablen erstellen
+1. .env.example in .env umbenennen
+2. Eigene Passwörter und Nutzernamen festlegen
+
 ## Voraussetzungen
 Um dieses Projekt zu starten, müssen Docker und Docker Compose auf dem System installiert sein.
 Beides kann kostenlos über die offizielle [Docker-Website](https://www.docker.com/) heruntergeladen werden.
@@ -65,3 +69,4 @@ docker compose down -v
 - Die API läuft auf Port **3000**.
 - Die Datenbank (MySQL) läuft auf Port **3306**.
 - Wenn einer der Ports bereits belegt ist, kannst du sie in der Datei `docker-compose.yml` anpassen.
+
