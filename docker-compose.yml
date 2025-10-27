@@ -1,17 +1,19 @@
 services:
   db:
     image: mysql:8
+    env_file:
+      - .env
     environment:
-      MYSQL_DATABASE: pokedex
-      MYSQL_USER: pokedex
-      MYSQL_PASSWORD: pokedex
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -20,12 +22,8 @@ services:
     build: .
     ports:
       - "3000:3000"
-    environment:
-      PORT: 3000
-      DB_HOST: db
-      DB_USER: pokedex
-      DB_PASS: pokedex
-      DB_NAME: pokedex
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
