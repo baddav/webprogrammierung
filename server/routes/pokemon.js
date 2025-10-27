@@ -14,11 +14,6 @@ const router = express.Router();
 const pool = require('../db/pool');
 
 /**
- * Importiere den Cache-Service, um Pokémon-Details abzurufen.
- */
-const { getPokemonDetails } = require('../services/cache');
-
-/**
  * Definiert eine GET-Route, um eine Liste von Pokémon abzurufen, mit Such-, Filter- und Sortieroptionen.
  */
 router.get('/', async (req, res) => {
@@ -132,25 +127,43 @@ router.get('/:id', async (req, res) => {
     try {
 
         /**
-         * Extrahiert die Pokémon-ID aus den Routenparametern und konvertiert sie in eine Zahl.
+         * Die ID des Pokémon aus den Routenparametern extrahieren.
          */
         const id = parseInt(req.params.id, 10);
 
         /**
-         * Überprüft, ob die ID gültig ist. Wenn nicht, wird ein 400-Fehler zurückgegeben.
+         * Überprüft, ob die ID gültig ist.
          */
         if (!id) return res.status(400).json({ error: 'Ungültige ID' });
 
         /**
-         * Ruft die Details des Pokémon aus dem Cache-Service ab.
+         * Ruft die Basisinformationen des Pokémon aus der Datenbank ab.
          */
-        const details = await getPokemonDetails(id);
+        const [[info]] = await pool.query('SELECT * FROM pokemon WHERE id = ?', [id]);
 
         /**
-         * Wenn keine Details gefunden werden, wird ein 404-Fehler zurückgegeben.
+         * Wenn das Pokémon nicht gefunden wird, gib einen 404-Fehler zurück.
          */
-        if (!details) return res.status(404).json({ error: 'Nicht gefunden' });
-        res.json(details);
+        if (!info) return res.status(404).json({ error: 'Nicht gefunden' });
+
+        /**
+         * Ruft die Statuswerte und Typen des Pokémon aus der Datenbank ab.
+         */
+        const [[stats]] = await pool.query('SELECT hp, attack, defense, speed FROM pokemon_stats WHERE pokemon_id = ?', [id]);
+        const [typesRows] = await pool.query('SELECT type FROM pokemon_types WHERE pokemon_id = ?', [id]);
+
+        /**
+         * Gibt die Pokémon-Details als JSON-Antwort zurück.
+         */
+        res.json({
+            id: info.id,
+            name: info.name,
+            sprite: info.sprite,
+            height: info.height,
+            weight: info.weight,
+            stats: stats || {},
+            types: typesRows.map(r => r.type)
+        });
     } catch (e) {
         console.error(e);
         res.status(500).json({ error: 'Serverfehler' });
