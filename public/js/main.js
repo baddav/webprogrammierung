@@ -206,7 +206,7 @@ function initSearch(){
             detail.innerHTML = renderPokemonDetail(p); // Verwendet die globale renderPokemonDetail-Funktion, um Pokemon-Karten zu erzeugen
 
             /**
-            * Schaut ob Pokemon Favoprit ist und zeigt dementsprechend das Herz an oder nicht
+            * Schaut ob Pokemon Favorit ist und zeigt dementsprechend das Herz an oder nicht
             */
             const favBtn = $('#favBtn');
             let favs = getFavs();
@@ -272,6 +272,10 @@ function initGallery(){
 
             const data = await json(`/api/pokemon?${params.toString()}`);
             state.total = data.total;
+
+             /**
+             * HTML für jede Kachel generieren und ins Grid einfügen
+             */
             grid.innerHTML = data.items.map(it => `
                 <div class="tile" data-id="${it.id}">
                     <img src="${it.sprite || '/public/img/pokeball.svg'}" alt="">
@@ -280,17 +284,30 @@ function initGallery(){
                 </div>
             `).join('');
 
+            /**
+            * Eventlistener setzen
+            */
             $$('.tile', grid).forEach(tile => {
                 const id = parseInt(tile.dataset.id, 10);
+
+                 /**
+                 * Klick auf Kachel öffnet Detailansicht
+                 */
                 tile.addEventListener('click', async e => {
                     if (e.target.classList.contains('fav-btn')) return;
-                    await showDetail(id); // Ruft die lokale showDetail-Funktion unten auf
+                    await showDetail(id);
                 });
+
+                /**
+                * Schaut ob Pokemon Favorit ist und zeigt dementsprechend das Herz an oder nicht
+                */
                 const btn = $('.fav-btn', tile);
                 const favs = getFavs();
                 const isFav = favs.includes(id);
 
-                // Verwendet die globale updateFavBtn-Funktion
+                /**
+                * Verwendet die globale updateFavBtn-Funktion
+                */
                 updateFavBtn(btn, isFav);
 
                 /**
@@ -303,12 +320,14 @@ function initGallery(){
                 });
             });
 
+            /**
+            * Gesamtseite berechnen und Anzeige aktualisieren
+            */
             const pages = Math.ceil(state.total / state.limit);
             $('#pageinfo').textContent = `Seite ${state.page} / ${pages}`;
             $('#prev').disabled = state.page <= 1;
             $('#next').disabled = state.page >= pages;
 
-            // catch-Block hinzugefügt
         } catch (err) {
             console.error('Fehler beim Laden der Galerie-Seite:', err);
             grid.innerHTML = `<div class="card">Fehler beim Laden der Pokémon.</div>`;
@@ -317,8 +336,7 @@ function initGallery(){
 
     /**
      * Zeigt die Detailansicht für ein Pokémon im Popup an.
-     * @param id
-     * @returns {Promise<void>}
+     * Parameter id
      */
     async function showDetail(id) {
         const popup = document.getElementById('popup');
@@ -326,28 +344,35 @@ function initGallery(){
         const closeBtn = document.getElementById('closePopup');
 
         try {
+
+         /**
+         * Läd Pokemondaten
+         */
             const p = await json(`/api/pokemon/${id}`);
 
-            // Verwendet die globale renderPokemonDetail-Funktion
-            detail.innerHTML = renderPokemonDetail(p);
 
-            popup.classList.remove('hidden');
+            detail.innerHTML = renderPokemonDetail(p); // Verwendet die globale renderPokemonDetail-Funktion
+
+            popup.classList.remove('hidden'); //Entfernt die hidden-Klasse und blendet das Popup ein
 
             const favBtn = document.getElementById('favBtn');
             let favs = getFavs();
             let isFav = favs.includes(p.id);
 
-            // Verwendet die globale updateFavBtn-Funktion
-            updateFavBtn(favBtn, isFav);
+
+            updateFavBtn(favBtn, isFav); // Verwendet die globale updateFavBtn-Funktion
 
             /**
-             * Event-Listener verwendet jetzt die globale handleFavToggle-Funktion.
+             * Event-Listener verwendet nutzt die globale handleFavToggle-Funktion.
              */
             favBtn.addEventListener('click', async () => {
                 isFav = await handleFavToggle(p.id);
                 updateFavBtn(favBtn, isFav);
             });
 
+            /**
+            * Bei Klick auf
+            */
             closeBtn.onclick = () => popup.classList.add('hidden');
             popup.onclick = (e) => {
                 if (e.target === popup) popup.classList.add('hidden');
