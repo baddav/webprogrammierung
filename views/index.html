@@ -3,40 +3,65 @@
 <head>
     <meta charset="utf-8">
     <title>Pokedex – PokeSearch</title>
+
+    <!-- Flexible Skalierung für verschiedene Bildschirmgrößen  -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Verknüpfung mit CSS-Datei-->
     <link href="/public/css/styles.css" rel="stylesheet">
 </head>
 <body data-page="index">
+
+<!-- Navigationsleiste oben auf der Seite-->
 <nav class="nav">
+
+    <!-- Linker Bereich der Navigation mit Logo und Smartlink -->
     <div class="left logo">
         <img src="/public/img/pokeball.svg" alt="Pokeball">
         <a href="/">Pokedex</a>
     </div>
+
+    <!-- Mittlerer Bereich Hauptnavigation (Verlinkungen) -->
     <div class="center">
         <a href="/">PokeSearch</a>
         <a href="/gallery">PokeGallery</a>
         <a href="/collection">PokeCollection</a>
     </div>
+
+    <!-- Rechter Bereich Profil-Link -->
     <div class="right">
         <a href="/profile">PokeProfile</a>
     </div>
 </nav>
 
 <div class="container">
+
+    <!-- Container für den Suchbereich -->
     <div class="card search-wrap">
+
+        <!-- Suchfeld mit Platzhaltertext -->
         <input id="search" class="search-input" type="text" placeholder="Pokémon suchen... (z. B. pika)">
+
+        <!-- "Container" für die Anzeige der Suchvorschläge (Anfangs leer) -->
         <div id="suggestions" class="suggestions"></div>
     </div>
 
+    <!-- Platzhalter, hier werden Details der Pokemon eingefügt-->
     <div id="detail" style="margin-top:12px"></div>
 
+    <!-- Container für Faktenbereich -->
     <div class="card facts">
         <div style="font-weight:700">Fakt:</div>
+
+        <!-- Dient dem JavaScript um immer wieder neue Fakten einspielen zu können -->
         <div id="fact-text">—</div>
+
+        <!-- Container für Fortschrittsbalken -->
         <div class="progress"><div class="progressbar"></div></div>
     </div>
 </div>
 
+<!-- Einbinden des JavaScript Codes -->
 <script src="/public/js/main.js"></script>
 </body>
 </html>

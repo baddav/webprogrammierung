@@ -1,3 +1,5 @@
+
+/* CSS-Variablen für Farben festgelegt, für eine intuitive Nutzung von Farben im Verlauf der Datei */
 :root{
     --red:#EF5350;
     --black:#222;
@@ -6,6 +8,8 @@
     --gray:#f3f3f3;
 }
 
+/* "*" gilt für alle HTML Elemente: Berechnung der Größe über Inhalt + Padding + Border */
+/* Festlegung eines Standarddesigns für alle Views */
 *{box-sizing:border-box}
 body{
     margin:0;
@@ -14,15 +18,16 @@ body{
     color:var(--black);
 }
 
-/* --- Navigation Bar --- */
+/* Navigationsbar - formatiert unsere Kopfzeile mit Logo und Links */
 .nav{
     background:var(--red);
     color:var(--white);
-    display:flex;
+    display:flex; /* Flexible Anordung der Elemente */
     align-items:center;
-    justify-content:space-between;
+    justify-content:space-between; /* Gleichmäßige Verteilung */
     padding:12px 16px;
 }
+/* Legt spezielle Formatierung für die Bereiche in der Bar fest */
 .nav .left, .nav .center, .nav .right { display:flex; align-items:center; gap:12px; }
 .nav a{
     color:var(--white);
@@ -31,40 +36,48 @@ body{
     padding:6px 10px;
     border-radius:10px;
 }
-.nav a:hover{ background:rgba(255,255,255,.15) }
+.nav a:hover{ background:rgba(255,255,255,.15) } /* Hover Anzeige beim Drübergehen mit der Maus */
 
+/* Logo Größe/Formatierung */
 .logo{
     display:flex; align-items:center; gap:8px; font-weight:800; letter-spacing:.5px;
 }
 .logo img{ width:24px; height:24px }
 
+/* zentriert den Hauptinhalt, begrenzt die Breite, Innen- und Außenabstand */
 .container{ max-width:1100px; margin:18px auto; padding:0 12px }
 
+/* weiße Box für Content-Elemente wie Suchfeld, Filterleiste, Statistik-Kacheln */
 .card{
     background:var(--white);
     border-radius:16px;
     box-shadow:0 8px 20px rgba(0,0,0,.08);
     padding:16px;
 }
-
+/* Ordnet Suche und Vorschläge an */
 .search-wrap{ display:flex; flex-direction:column; gap:12px }
+
+/* Formatierung Texteingabefeld */
 .search-input{
     width:100%; padding:12px 14px; border:1px solid #ddd; border-radius:12px; font-size:16px;
 }
+/* Anordung der Suchvorschläge (Container) */
 .suggestions{
     background:var(--white); border-radius:12px; padding:8px; display:grid; gap:6px;
 }
+/* Vorschlagszeile Anordnung */
 .suggestion{ display:flex; align-items:center; gap:8px; padding:8px; border-radius:10px; cursor:pointer }
+
 .suggestion:hover{ background:#f7f7f7 }
 .suggestion img{ width:36px; height:36px }
 
+/* Formatierung der Typ Badges der Pokemon */
 .badges{ display:flex; gap:8px; flex-wrap:wrap }
 .badge{
     padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700; color:#fff;
     text-transform:capitalize;
 }
-
-/* Simple type colors */
+/* Farben für die verschiedenen Typen/Badges */
 .badge.fire{ background:#FD7D24 }
 .badge.water{ background:#4592C4 }
 .badge.grass{ background:#62B957 }
@@ -84,13 +97,16 @@ body{
 .badge.dark{ background:#707070 }
 .badge.flying{ background:#3DC7EF }
 
-/* --- Detail --- */
+/* .detail und .kv sind für die Anzeige der Pokemon auf der Search Seite, da dort kein Popup geöffnet wird --> bei Gallery und Collection wird Popup genutzt (weiter unten im CSS-Code)*/
+/* Hauptcontainer der Pokemon-Details (Anordnungen) */
 .detail{ display:grid; grid-template-columns: 160px 1fr; gap:16px; align-items:center }
 .detail img{ width:160px; height:160px; object-fit:contain }
+
+/* Anordnung/Formatierung der Key-Value-Paare */
 .kv{ display:grid; grid-template-columns: 140px 1fr; row-gap:6px; column-gap:10px; font-size:14px }
 .kv div{ padding:4px 0 }
 
-/* --- Facts + Progress --- */
+/* Anordung der Facts und Progressbar auf der Search Seite */
 .facts{
     margin-top:10px; display:flex; align-items:center; gap:12px;
 }
@@ -102,37 +118,41 @@ body{
     background:var(--yellow);
     animation: prog 10s linear infinite;
 }
+/* Definiert die Animation der Progressbar in Kombination mit .progressbar*/
 @keyframes prog{ from{ width:0% } to{ width:100% } }
 
-/* --- Gallery grid --- */
+/* Gallery Raster für Anzeige der Pokemon-Kacheln (Container 5 Spalten) */
 .grid{
     margin-top:12px;
     display:grid; grid-template-columns: repeat(5, 1fr);
     gap:12px;
 }
+/* Layout einzelne Pokemon-Kacheln */
 .tile{
     background:var(--white); border-radius:14px; padding:12px; text-align:center;
     box-shadow:0 6px 14px rgba(0,0,0,.06);
     transition: transform .15s ease;
 }
+/* In der Kachel: Pokemon Bild, Name, und Effekt beim Drübergehen mit der Maus */
 .tile:hover{ transform: translateY(-2px) }
 .tile img{ width:110px; height:110px; object-fit:contain }
 .tile .name{ font-weight:700; text-transform:capitalize; margin-top:6px }
 
-/* --- Pagination --- */
+/* Buttons und Layout der Seitennavigation der Pokemons (Seite 1 von ...) */
 .pager{ display:flex; justify-content:center; gap:8px; margin:16px 0 }
 button.btn{
     padding:8px 12px; border:1px solid #ddd; background:#fff; border-radius:10px; cursor:pointer; font-weight:600;
 }
 button.btn[disabled]{ opacity:.5; cursor:not-allowed }
 
-/* --- Favorite --- */
+/* Layout der Buttons in den Kacheln um Favoriten hinzuzufügen */
 .fav-btn{
     border:none; background:transparent; font-size:20px; cursor:pointer;
 }
+/* Wenn Button gerückt wird wird er rot */
 .fav-btn.active{ color:var(--red) }
 
-/* --- Responsive --- */
+/* Anpassung des Gesamtlayouts und der Ausrichtung je nach Bildschirmgröße*/
 @media (max-width: 1000px){
     .grid{ grid-template-columns: repeat(4, 1fr) }
 }
@@ -144,7 +164,7 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
     .grid{ grid-template-columns: 1fr }
 }
 
-/* --- Popup Overlay --- */
+/* Popup-Formatierung für die Detailansichten der Pokemon */
 .popup {
   position: fixed;
   top: 0;
@@ -157,12 +177,12 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
   align-items: center;
   z-index: 1000;
 }
-
+/* Popup verstecken, erst bei Klicken später anzeigen */
 .popup.hidden {
   display: none;
 }
 
-
+/* Formatierung des Fensters im Popup */
 .popup-content {
   background: white;
   border-radius: 12px;
@@ -174,6 +194,7 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
   text-align: center;
 }
 
+/* Design des Buttons, der das Popup schließt */
 .close-btn {
   position: absolute;
   top: 8px;
@@ -183,6 +204,7 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
   font-size: 20px;
   cursor: pointer;
 }
+/* Informationen in Popup (nach Tabellenform) anordnen */
 .popup-content .kv {
   text-align: left;
   margin: 10px auto;
@@ -191,6 +213,8 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
   gap: 4px 12px;
   max-width: 240px;
 }
+
+/* Top Bar der Collection Seite */
 .top-bar {
   width: 100%;
   background-color: #f6f6f6;
@@ -199,7 +223,7 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
   text-align: center;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
-
+/* Top Bar der Collection Seite speziell Überschrift*/
 .top-bar h2 {
   margin: 0;
   font-size: 1.4rem;

@@ -62,7 +62,7 @@ async function run() {
             if (id % 25 === 0) console.log(`...bis #${id} eingefügt`);
         }
 
-        console.log('Fertig. 🎉');
+        console.log('Fertig.');
         process.exit(0);
     } catch (e) {
         console.error('Seed-Fehler:', e);
