@@ -1,13 +1,14 @@
-
 /* CSS-Variablen für Farben festgelegt, für eine intuitive Nutzung von Farben im Verlauf der Datei */
 :root{
-    --red:#EF5350;
-    --black:#222;
-    --white:#fff;
-    --yellow:#FBC02D;
+    --red:#C61A09;
+    --black:#000000;
+    --white:#FFFFFF;
+    --yellow:#E2B007;
     --gray:#f3f3f3;
 }
-
+/**
+*Hier ist der Kommentar!
+*/
 /* "*" gilt für alle HTML Elemente: Berechnung der Größe über Inhalt + Padding + Border */
 /* Festlegung eines Standarddesigns für alle Views */
 *{box-sizing:border-box}
@@ -17,17 +18,16 @@ body{
     background:var(--gray);
     color:var(--black);
 }
-
 /* Navigationsbar - formatiert unsere Kopfzeile mit Logo und Links */
 .nav{
     background:var(--red);
     color:var(--white);
-    display:flex; /* Flexible Anordung der Elemente */
+    display:flex; /* Flexible Anordnung der Elemente */
     align-items:center;
     justify-content:space-between; /* Gleichmäßige Verteilung */
     padding:12px 16px;
 }
-/* Legt spezielle Formatierung für die Bereiche in der Bar fest */
+/* Legt spezielle Formatierung für die Bereiche in der Bar fest, Wende die gleichen Regeln auf alle Elemente an, die innerhalb von .nav die Klasse left, center oder right haben */
 .nav .left, .nav .center, .nav .right { display:flex; align-items:center; gap:12px; }
 .nav a{
     color:var(--white);
@@ -37,16 +37,13 @@ body{
     border-radius:10px;
 }
 .nav a:hover{ background:rgba(255,255,255,.15) } /* Hover Anzeige beim Drübergehen mit der Maus */
-
 /* Logo Größe/Formatierung */
 .logo{
     display:flex; align-items:center; gap:8px; font-weight:800; letter-spacing:.5px;
 }
 .logo img{ width:24px; height:24px }
-
 /* zentriert den Hauptinhalt, begrenzt die Breite, Innen- und Außenabstand */
 .container{ max-width:1100px; margin:18px auto; padding:0 12px }
-
 /* weiße Box für Content-Elemente wie Suchfeld, Filterleiste, Statistik-Kacheln */
 .card{
     background:var(--white);
@@ -54,39 +51,36 @@ body{
     box-shadow:0 8px 20px rgba(0,0,0,.08);
     padding:16px;
 }
-/* Ordnet Suche und Vorschläge an */
+/* Ordnet Suche und Vorschläge an oder Flex-Container für Suchbereich*/
 .search-wrap{ display:flex; flex-direction:column; gap:12px }
-
 /* Formatierung Texteingabefeld */
 .search-input{
     width:100%; padding:12px 14px; border:1px solid #ddd; border-radius:12px; font-size:16px;
 }
-/* Anordung der Suchvorschläge (Container) */
+/* Anordnung der Suchvorschläge (Container) */
 .suggestions{
     background:var(--white); border-radius:12px; padding:8px; display:grid; gap:6px;
 }
 /* Vorschlagszeile Anordnung */
 .suggestion{ display:flex; align-items:center; gap:8px; padding:8px; border-radius:10px; cursor:pointer }
-
-.suggestion:hover{ background:#f7f7f7 }
+.suggestion:hover{ background:var(--gray) }
 .suggestion img{ width:36px; height:36px }
-
 /* Formatierung der Typ Badges der Pokemon */
 .badges{ display:flex; gap:8px; flex-wrap:wrap }
 .badge{
-    padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700; color:#fff;
+    padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700; color: var(--white);
     text-transform:capitalize;
 }
 /* Farben für die verschiedenen Typen/Badges */
 .badge.fire{ background:#FD7D24 }
 .badge.water{ background:#4592C4 }
 .badge.grass{ background:#62B957 }
-.badge.electric{ background:#EED535; color:#000 }
+.badge.electric{ background:#EED535}
 .badge.bug{ background:#729F3F }
-.badge.normal{ background:#A4ACAF; color:#000 }
+.badge.normal{ background:#A4ACAF}
 .badge.poison{ background:#B97FC9 }
 .badge.ground{ background:#AB9842 }
-.badge.fairy{ background:#FDB9E9; color:#000 }
+.badge.fairy{ background:#FDB9E9}
 .badge.ice{ background:#51C4E7 }
 .badge.fighting{ background:#D56723 }
 .badge.psychic{ background:#F366B9 }
@@ -96,22 +90,19 @@ body{
 .badge.steel{ background:#9EB7B8 }
 .badge.dark{ background:#707070 }
 .badge.flying{ background:#3DC7EF }
-
 /* .detail und .kv sind für die Anzeige der Pokemon auf der Search Seite, da dort kein Popup geöffnet wird --> bei Gallery und Collection wird Popup genutzt (weiter unten im CSS-Code)*/
 /* Hauptcontainer der Pokemon-Details (Anordnungen) */
 .detail{ display:grid; grid-template-columns: 160px 1fr; gap:16px; align-items:center }
 .detail img{ width:160px; height:160px; object-fit:contain }
-
 /* Anordnung/Formatierung der Key-Value-Paare */
 .kv{ display:grid; grid-template-columns: 140px 1fr; row-gap:6px; column-gap:10px; font-size:14px }
 .kv div{ padding:4px 0 }
-
 /* Anordung der Facts und Progressbar auf der Search Seite */
 .facts{
     margin-top:10px; display:flex; align-items:center; gap:12px;
 }
 .progress{
-    position:relative; flex:1; height:6px; background:#e7e7e7; border-radius:999px; overflow:hidden;
+    position:relative; flex:1; height:6px; background:var(--gray); border-radius:999px; overflow:hidden;
 }
 .progressbar{
     position:absolute; left:0; top:0; bottom:0; width:0%;
@@ -120,7 +111,6 @@ body{
 }
 /* Definiert die Animation der Progressbar in Kombination mit .progressbar*/
 @keyframes prog{ from{ width:0% } to{ width:100% } }
-
 /* Gallery Raster für Anzeige der Pokemon-Kacheln (Container 5 Spalten) */
 .grid{
     margin-top:12px;
@@ -137,21 +127,18 @@ body{
 .tile:hover{ transform: translateY(-2px) }
 .tile img{ width:110px; height:110px; object-fit:contain }
 .tile .name{ font-weight:700; text-transform:capitalize; margin-top:6px }
-
 /* Buttons und Layout der Seitennavigation der Pokemons (Seite 1 von ...) */
 .pager{ display:flex; justify-content:center; gap:8px; margin:16px 0 }
 button.btn{
-    padding:8px 12px; border:1px solid #ddd; background:#fff; border-radius:10px; cursor:pointer; font-weight:600;
+    padding:8px 12px; border:1px solid #f3f3f3; background:var(--white); border-radius:10px; cursor:pointer; font-weight:600;
 }
 button.btn[disabled]{ opacity:.5; cursor:not-allowed }
-
 /* Layout der Buttons in den Kacheln um Favoriten hinzuzufügen */
 .fav-btn{
     border:none; background:transparent; font-size:20px; cursor:pointer;
 }
 /* Wenn Button gerückt wird wird er rot */
 .fav-btn.active{ color:var(--red) }
-
 /* Anpassung des Gesamtlayouts und der Ausrichtung je nach Bildschirmgröße*/
 @media (max-width: 1000px){
     .grid{ grid-template-columns: repeat(4, 1fr) }
@@ -163,7 +150,6 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
 @media (max-width: 420px){
     .grid{ grid-template-columns: 1fr }
 }
-
 /* Popup-Formatierung für die Detailansichten der Pokemon */
 .popup {
   position: fixed;
@@ -181,10 +167,9 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
 .popup.hidden {
   display: none;
 }
-
 /* Formatierung des Fensters im Popup */
 .popup-content {
-  background: white;
+  background: var(--white);
   border-radius: 12px;
   padding: 32px 32px;
   max-width: 420px;
@@ -193,7 +178,6 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   text-align: center;
 }
-
 /* Design des Buttons, der das Popup schließt */
 .close-btn {
   position: absolute;
@@ -213,11 +197,10 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
   gap: 4px 12px;
   max-width: 240px;
 }
-
 /* Top Bar der Collection Seite */
 .top-bar {
   width: 100%;
-  background-color: #f6f6f6;
+  background-color: var(--gray);
   padding: 12px 20px;
   border-bottom: 1px solid #ddd;
   text-align: center;
@@ -228,6 +211,7 @@ button.btn[disabled]{ opacity:.5; cursor:not-allowed }
   margin: 0;
   font-size: 1.4rem;
   font-weight: 600;
-  color: #333;
+  color: var(--black);
   letter-spacing: 0.5px;
 }
+ 

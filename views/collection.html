@@ -4,39 +4,48 @@
     <meta charset="utf-8">
     <title>Pokedex – PokeCollection</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Verknüpfung mit der CSS Datei -->
     <link href="/public/css/styles.css" rel="stylesheet">
 </head>
 <body data-page="collection">
+<!-- Navigationsleiste oben auf der Seite -->
 <nav class="nav">
+    <!-- Linker Bereich: Logo und Startseiten-Link -->
     <div class="left logo">
         <img src="/public/img/pokeball.svg" alt="Pokeball">
         <a href="/">Pokedex</a>
     </div>
+    <!-- Mittlerer Bereich der Navigation: Hauptmenüpunkte -->
     <div class="center">
         <a href="/">PokeSearch</a>
         <a href="/gallery">PokeGallery</a>
         <a href="/collection">PokeCollection</a>
     </div>
+    <!-- Rechter Bereich: Link zum Benutzerprofil -->
     <div class="right">
         <a href="/profile">PokeProfile</a>
     </div>
 </nav>
+<!-- Graue obere Leiste mit Überschrift "Meine Collection" -->
 <div class="top-bar">
     <h2>Meine Collection</h2>
 </div>
+<!-- Hauptbereich der Seite -->
 <div class="container">
-    <!-- Filter/Sort Leiste entfernt - Collection zeigt nur Favoriten -->
+    <!-- Hier werden die Pokeman Karten eingefügt (JS) -->
     <div id="list" class="grid"></div>
 </div>
-
-<!-- Popup-Overlay (gleich wie in der Gallery) -->
+<!-- Popup Fenster für Detailansicht eines Pokémon -->
 <div id="popup" class="popup hidden">
     <div class="popup-content">
+        <!-- Schließen Button für Pop-Up -->
         <button id="closePopup" class="close-btn">✕</button>
+        <!-- Bereich, in dem die Pokémon-Details geladen werden -->
         <div id="popup-detail"></div>
     </div>
 </div>
-
+<!-- Einbindung der Java-Script Datei, enthält die Logik zum Laden und Anzeigen
+der Pokémon -->
 <script src="/public/js/main.js"></script>
 </body>
 </html>

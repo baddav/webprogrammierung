@@ -1,10 +1,13 @@
+/**
+ * Hilfsfunktionen für eine bessere Kommuniaktion mit den HTML-Pages (Auswahl HTML-Elemente)
+ */
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
 /**
  * Erstellt ein Badge-Element für einen Pokémon-Typ.
- * @param t
- * @returns {string}
+ * Parameter t
+ * Gibt einen String zurück
  */
 function typeBadge(t){
     return `<span class="badge ${t}">${t}</span>`;
@@ -145,6 +148,7 @@ function renderPokemonDetail(p) {
 
 /**
  * Initialisiert die Seite basierend auf dem data-page Attribut des body-Tags.
+ * Ruft die init Funktion auf, basierend auf der aktuell verwendeten Page
  */
 document.addEventListener('DOMContentLoaded', () => {
     const page = document.body.dataset.page;
