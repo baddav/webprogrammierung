@@ -1,6 +1,7 @@
 /**
- * Hilfsfunktionen für eine bessere Kommuniaktion mit den HTML-Pages (Auswahl HTML-Elemente)
+ * Hilfunktionen für eine bessere Kommunikation mit den HTML-Pages (Auswahl HTML-Elemente)
  */
+
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
@@ -14,10 +15,11 @@ function typeBadge(t){
 }
 
 /**
- * Führt einen Fetch-Request aus und gibt das JSON-Ergebnis zurück.
- * @param url
- * @param opts
- * @returns {Promise<any>}
+ * Führt einen Fetch-Request (asynchron) aus und gibt das JSON-Ergebnis zurück.
+ * Vereinheitlicht die API-Anfrage
+ * Parameter url
+ * Parameter opts
+ * Gibt zurück: {Promise<any>}
  */
 async function json(url, opts){
     const res = await fetch(url, opts);
@@ -27,9 +29,9 @@ async function json(url, opts){
 
 /**
  * Erstellt eine debouncete Funktion.
- * @param fn
- * @param ms
- * @returns {(function(...[*]): void)|*}
+ * Drosselt die Suchfunktion --> Verzögert den Aufruf einer Funktion, um unnötige viele Requests zu vermeiden.
+ * Parameter fn
+ * Parameter ms
  */
 function debounce(fn, ms){
     let t;
@@ -40,14 +42,15 @@ function debounce(fn, ms){
 }
 
 /**
- * Gibt den LocalStorage-Schlüssel für Favoriten zurück.
- * @returns {string}
+ * Gibt den LocalStorage-Schlüssel für Favoriten zurück (Im Browser --> Local).
+ * Wichtig für die Speicherung der Favoriten, sodass diese später wieder gefunden werden können (pro Nutzer).
+ * Gibt String zurück
  */
 function favKey(){ return 'favorites'; }
 
 /**
  * Lädt die Favoriten aus dem LocalStorage.
- * @returns {any|*[]}
+ * Falls kein String vorhanden oder ein Problem auftritt, wird ein leeres Array zurückgegeben, sodass kein Fehler entsteht.
  */
 function getFavs(){
     try { return JSON.parse(localStorage.getItem(favKey())||'[]'); } catch { return []; }
@@ -55,7 +58,7 @@ function getFavs(){
 
 /**
  * Speichert die Favoriten im LocalStorage.
- * @param arr
+ * Parameter arr
  */
 function setFavs(arr){
     localStorage.setItem(favKey(), JSON.stringify(arr));
@@ -63,9 +66,9 @@ function setFavs(arr){
 
 /**
  * Fügt oder entfernt ein Pokémon von den Favoriten auf dem Server.
- * @param id
- * @param active
- * @returns {Promise<void>}
+ * Favorisierte Pokemon in der SQL-Favoriten-Datenbank hinzufügen oder entfernen.
+ * Parameter id
+ * Parameter active
  */
 async function toggleFavorite(id, active){
     if (active){
@@ -75,16 +78,10 @@ async function toggleFavorite(id, active){
     }
 }
 
-
-// ----------------------------------------------------------------
-// NEUE ZENTRALE FUNKTIONEN (Refactoring)
-// ----------------------------------------------------------------
-
 /**
- * NEU: Aktualisiert das Aussehen eines Favoriten-Buttons (Herz-Icon und Klasse).
- * Diese Funktion war vorher in initSearch, initGallery und initCollection dupliziert.
- * @param {HTMLElement} btn Der Button.
- * @param {boolean} active Ob der Favorit aktiv ist.
+ * Aktualisiert das Aussehen eines Favoriten-Buttons (Herz-Icon).
+ * Parameter btn (Der Button)
+ * Parameter active Ob der Favorit aktiv ist.
  */
 function updateFavBtn(btn, active) {
     if (!btn) return;
@@ -93,10 +90,9 @@ function updateFavBtn(btn, active) {
 }
 
 /**
- * NEU: Kapselt die gesamte Logik zum Umschalten eines Favoriten.
- * Ändert LocalStorage, ruft die Server-API auf und gibt den neuen Status zurück.
- * @param {number} id Die Pokémon-ID.
- * @returns {Promise<boolean>} Der neue Favoritenstatus (true=favorisiert, false=nicht).
+ * Kapselt die gesamte Logik zum Umschalten eines Favoriten.
+ * Ändert LocalStorage (Browserseitig), ruft die Server-API auf, und gibt den neuen Status zurück.
+ * Parameter id
  */
 async function handleFavToggle(id) {
     let favs = getFavs();
@@ -116,15 +112,14 @@ async function handleFavToggle(id) {
 }
 
 /**
- * NEU: Generiert das HTML für die Pokémon-Detailansicht.
- * Dieser HTML-Block war in initSearch, initGallery und initCollection dupliziert.
- * @param {object} p Das Pokémon-Objekt von der API.
- * @returns {string} Den HTML-String für die Detailkarte.
+ * Erzeugt das HTML-String für die Pokémon-Detailansicht.
+ * Zeigt auch Favoritenbutton an
+ * @Parameter p --> Das Pokémon-Objekt
  */
 function renderPokemonDetail(p) {
     return `
         <div class="card detail">
-          <img src="${p.sprite || '/public/img/pokeball.svg'}" alt="${p.name}">
+          <img src="${p.sprite || '/public/img/pokeball.svg'}" alt="${p.name}"> // falls kein Bild verfügbar, Bild von Pokeball anzeigen
           <div>
             <h2 style="margin:0; text-transform:capitalize">${p.name} <small>#${p.id}</small></h2>
             <div class="badges" style="margin:8px 0">${p.types.map(typeBadge).join('')}</div>
@@ -142,13 +137,8 @@ function renderPokemonDetail(p) {
     `;
 }
 
-// ----------------------------------------------------------------
-// ---- Seiten-Init ----
-// ----------------------------------------------------------------
-
 /**
- * Initialisiert die Seite basierend auf dem data-page Attribut des body-Tags.
- * Ruft die init Funktion auf, basierend auf der aktuell verwendeten Page
+ * Ermittelt über Attribut des body (HTML) welche Seite aktuell angezeigt wird und ruft deren Initalisierungsfunktion auf.
  */
 document.addEventListener('DOMContentLoaded', () => {
     const page = document.body.dataset.page;
@@ -159,23 +149,32 @@ document.addEventListener('DOMContentLoaded', () => {
     if (page === 'profile') initProfile();
 });
 
-// ----------------------------------------------------------------
-// ---- PokeSearch ----
-// ----------------------------------------------------------------
-
+// Search
 /**
  * Initialisiert die Suchseite.
  */
+
+
 function initSearch(){
+    /**
+    * Beschreibt welche HTML-Elemente verwendet werden
+    */
     const input = $('#search');
     const sugList = $('#suggestions');
     const detail = $('#detail');
     const factText = $('#fact-text');
 
+    /**
+    * Anzeigen der Suchvorschläge
+    */
     const renderSuggestions = async (term) => {
         if (!term) { sugList.innerHTML = ''; return; }
         try {
-            const items = await json(`/api/pokemon?search=${encodeURIComponent(term)}`);
+            const items = await json(`/api/pokemon?search=${encodeURIComponent(term)}`); // Anfrage aufgrund Suchbegriff
+
+            /**
+             * Erzeugt Vorschlagskacheln
+             */
             sugList.innerHTML = items.map(i => `
         <div class="suggestion" data-id="${i.id}">
           <img src="${i.sprite || '/public/img/pokeball.svg'}" alt="">
@@ -186,28 +185,35 @@ function initSearch(){
         } catch {}
     };
 
+    /**
+    * Hier wird nun die Suche verzögert, um Request zu reduzieren.
+    */
     const debounced = debounce(renderSuggestions, 300);
     input.addEventListener('input', e => debounced(e.target.value.trim()));
 
     /**
      * Zeigt die Detailansicht für ein Pokémon an.
-     * @param id
-     * @returns {Promise<void>}
+     * Parameter id
      */
     async function showDetail(id){
         try{
+        /**
+        * Ließt Daten der übergebenen Pokemon ID
+        */
             const p = await json(`/api/pokemon/${id}`);
             sugList.innerHTML = '';
 
-            // Verwendet die globale renderPokemonDetail-Funktion
-            detail.innerHTML = renderPokemonDetail(p);
+            detail.innerHTML = renderPokemonDetail(p); // Verwendet die globale renderPokemonDetail-Funktion, um Pokemon-Karten zu erzeugen
 
+            /**
+            * Schaut ob Pokemon Favoprit ist und zeigt dementsprechend das Herz an oder nicht
+            */
             const favBtn = $('#favBtn');
             let favs = getFavs();
             let isFav = favs.includes(p.id);
 
-            // Verwendet die globale updateFavBtn-Funktion
-            updateFavBtn(favBtn, isFav);
+
+            updateFavBtn(favBtn, isFav); // Verwendet die globale updateFavBtn-Funktion
 
             /**
              * Event-Listener verwendet jetzt die globale handleFavToggle-Funktion.
@@ -221,6 +227,11 @@ function initSearch(){
         }
     }
 
+
+    /**
+     * Holt die Fakten aus der Datenbank und lädt alle 10 Sekunden einen neuen.
+     * Falls keine Fakten vorhanden, wird ein Standardtext angezeigt.
+     */
     async function loadFact(){
         try{
             const f = await json('/api/facts/next');
@@ -231,10 +242,7 @@ function initSearch(){
     setInterval(loadFact, 10000);
 }
 
-// ----------------------------------------------------------------
-// ---- Gallery ----
-// ----------------------------------------------------------------
-
+// Gallery
 /**
  * Initialisiert die Galerie-Seite.
  */
@@ -242,16 +250,19 @@ function initGallery(){
     const grid = $('#grid');
     const typeSel = $('#type');
     const sortSel = $('#sort');
+    /**
+    * Gibt Zustand der Gallery an für Aktualisierung dieser
+    */
     const state = { page: 1, limit: 20, total: 0, type: '', sort: 'name_asc' };
 
     /**
-     * Lädt und rendert die aktuelle Seite der Galerie.
-     * @returns {Promise<void>}
+     * Lädt und rendert die aktuelle Seite (Pokemon Kacheln) der Galerie.
      */
     async function loadPage(){
-
-        // try...catch-Block hinzugefügt, um API-Fehler abzufangen.
         try {
+        /**
+        * Parameter für Request an DB
+        */
             const params = new URLSearchParams({
                 page: state.page,
                 limit: state.limit,
