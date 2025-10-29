@@ -1,7 +1,7 @@
 /**
  * Importiert MySQL-Pool für Datenbankverbindungen.
  */
-const pool = require('../db/pool')
+const pool = require('../db/pool');
 
 /**
  * Ruft einen zufälligen Fakt aus der Datenbank ab.

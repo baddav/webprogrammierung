@@ -1,14 +1,14 @@
 /**
  * Importiert MySQL-Pool für Datenbankverbindungen.
  */
-const pool = require('../db/pool')
+const pool = require('../db/pool');
 
 /**
  * Fügt ein Pokémon zu den Favoriten hinzu.
  */
 async function addFavPokemon(id) {
     const [result] = await pool.query('INSERT IGNORE INTO favorites (pokemon_id) VALUES (?)', [id]);
-    return result
+    return result;
 }
 
 /**
@@ -16,7 +16,7 @@ async function addFavPokemon(id) {
  */
 async function deleteFavPokemon(id) {
     const [result] = await pool.query('DELETE FROM favorites WHERE pokemon_id = ?', [id]);
-    return result
+    return result;
 }
 
 /**

@@ -1,7 +1,7 @@
 /**
  * Importiert MySQL-Pool für Datenbankverbindungen.
  */
-const pool = require('../db/pool')
+const pool = require('../db/pool');
 
 /**
  * Ruft Pokémon-Daten basierend auf einer Suchanfrage ab.
@@ -27,8 +27,11 @@ async function getPokemonWithFilters(filters, params, orderBy, limit, offset) {
         ORDER BY ${orderBy}
         LIMIT ? OFFSET ?
     `;
-    params.push(limit, offset);
-    const [rows] = await pool.query(query, params);
+    /**
+     * Kombiniert die Abfrageparameter mit Limit und Offset.
+     */
+    const queryParams = [...params, limit, offset];
+    const [rows] = await pool.query(query, queryParams);
     return rows;
 }
 

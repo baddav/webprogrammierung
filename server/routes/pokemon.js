@@ -110,7 +110,7 @@ router.get('/:id', async (req, res) => {
          * Ruft die Statuswerte und Typen des Pokémon aus der Datenbank ab.
          */
         const stats = await getPokemonStatsById(id);
-        const typesRows = await getPokemonTypesById(id);
+        const types = await getPokemonTypesById(id);
 
         /**
          * Gibt die Pokémon-Details als JSON-Antwort zurück.
@@ -122,7 +122,7 @@ router.get('/:id', async (req, res) => {
             height: info.height,
             weight: info.weight,
             stats: stats || {},
-            types: typesRows.map(r => r.type)
+            types: types
         });
     } catch (e) {
         console.error(e);
