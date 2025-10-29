@@ -1,14 +1,36 @@
+/**
+ * Importiert die Axios-Bibliothek für HTTP-Anfragen.
+ */
 const axios = require('axios');
 
+/**
+ * Ruft die Gesamtanzahl der Pokémon-Spezies aus der PokéAPI ab.
+ */
 async function getPokemonSpeciesCount() {
     const response = await axios.get('https://pokeapi.co/api/v2/pokemon-species');
     return response.data.count;
 }
 
+/**
+ * Ruft die Daten eines Pokémon von der PokéAPI anhand seiner ID ab.
+ * @param id
+ * @returns {
+ * Promise<null|{id,
+ * name,
+ * sprite: *,
+ * height,
+ * weight: *,
+ * stats: {hp: (*|number),
+ * attack: (*|number),
+ * defense: (*|number),
+ * speed: (*|number)},
+ * types: any[]}>}
+ */
 async function getPokemonFromAPI(id) {
     try {
         const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
         const data = response.data;
+
         return {
             id: data.id,
             name: data.name,
