@@ -21,7 +21,7 @@ const pool = require('../db/pool');
 /**
  * Importiere PokeAPI-Dienste zum Abrufen von Pokémon-Daten.
  */
-const { getPokemonFromAPI, getPokemonSpeciesCount } = require('../services/pokeapi');
+const { getPokemonFromAPI, getPokemonSpeciesCount } = require('../repositories/pokeapi');
 
 /**
  * Hauptfunktion zum Ausführen des Seed-Skripts.

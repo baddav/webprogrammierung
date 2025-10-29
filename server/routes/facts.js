@@ -9,17 +9,16 @@ const express = require('express');
 const router = express.Router();
 
 /**
- * Datenbank-Pool für die Verbindung zur Datenbank.
+ * Importiert die Funktion zum Abrufen von Fakten aus der DB.
  */
-const pool = require('../db/pool');
+const { getFacts } = require('../repositories/factRepo');
 
 /**
  * Definiert eine GET-Route, die einen zufälligen Fakt aus der Datenbank abruft.
  */
 router.get('/next', async (_req, res) => {
     try {
-        const [rows] = await pool.query('SELECT text FROM facts ORDER BY RAND() LIMIT 1');
-        if (!rows.length) return res.json({ text: 'Pokémon machen Spaß!' });
+        const rows = await getFacts();
         res.json(rows[0]);
     } catch (e) {
         console.error(e);

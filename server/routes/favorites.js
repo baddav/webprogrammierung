@@ -13,15 +13,17 @@ const router = express.Router();
  */
 const pool = require('../db/pool');
 
+const {addPokemon, deletePokemon, getPokemon} = require("../repositories/favoritesRepo");
+
 /**
  * Definiert eine POST-Route, um ein Pokémon zu den Favoriten hinzuzufügen.
  */
 router.post('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id, 10);
-        if (!id) return res.status(400).json({ error: 'Ungültige ID' });
 
-        await pool.query('INSERT IGNORE INTO favorites (pokemon_id) VALUES (?)', [id]);
+        if (!id) return res.status(400).json({ error: 'Ungültige ID' });
+        await addPokemon(id);
         res.json({ ok: true });
     } catch (e) {
         console.error(e);
@@ -35,7 +37,7 @@ router.post('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id, 10);
-        await pool.query('DELETE FROM favorites WHERE pokemon_id = ?', [id]);
+        await deletePokemon(id);
         res.json({ ok: true });
     } catch (e) {
         console.error(e);
@@ -52,15 +54,7 @@ router.get('/', async (_req, res) => {
         /**
          * Ruft alle favorisierten Pokémon aus der Datenbank ab, sortiert nach Name aufsteigend.
          */
-        const [rows] = await pool.query(
-            `
-                SELECT p.id, p.name, p.sprite
-                FROM favorites f
-                         JOIN pokemon p ON p.id = f.pokemon_id
-                ORDER BY p.name ASC
-            `
-        );
-
+        const rows = await getPokemon();
         res.json(rows);
     } catch (e) {
         console.error(e);
