@@ -1,5 +1,11 @@
+/**
+ * Importiert MySQL-Pool für Datenbankverbindungen.
+ */
 const pool = require('../db/pool')
 
+/**
+ * Ruft Pokémon-Daten basierend auf einer Suchanfrage ab.
+ */
 async function getPokemonBySearch(search) {
     const term = `%${search.toLowerCase()}%`;
     const starts = `${search.toLowerCase()}%`;

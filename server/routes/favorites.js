@@ -9,10 +9,8 @@ const express = require('express');
 const router = express.Router();
 
 /**
- * Datenbank-Pool für die Verbindung zur Datenbank.
+ * Importiert Funktionen zum Verwalten der Favoriten aus dem Repository.
  */
-const pool = require('../db/pool');
-
 const {addPokemon, deletePokemon, getPokemon} = require("../repositories/favoritesRepo");
 
 /**
@@ -20,6 +18,10 @@ const {addPokemon, deletePokemon, getPokemon} = require("../repositories/favorit
  */
 router.post('/:id', async (req, res) => {
     try {
+
+        /**
+         * Die ID des Pokémon aus den URL-Parametern.
+         */
         const id = parseInt(req.params.id, 10);
 
         if (!id) return res.status(400).json({ error: 'Ungültige ID' });
@@ -50,10 +52,6 @@ router.delete('/:id', async (req, res) => {
  */
 router.get('/', async (_req, res) => {
     try {
-
-        /**
-         * Ruft alle favorisierten Pokémon aus der Datenbank ab, sortiert nach Name aufsteigend.
-         */
         const rows = await getPokemon();
         res.json(rows);
     } catch (e) {

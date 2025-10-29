@@ -9,6 +9,9 @@ const express = require('express');
  */
 const router = express.Router();
 
+/**
+ * Importiert Funktionen zum Abrufen von Profilstatistiken aus dem Repository.
+ */
 const {countFavoritePokemons, countSeenPokemons, getMostFavoritedType} = require("../repositories/profileRepo");
 
 /**
@@ -16,19 +19,8 @@ const {countFavoritePokemons, countSeenPokemons, getMostFavoritedType} = require
  */
 router.get('/stats', async (_req, res) => {
     try {
-        /**
-         * Ermittelt die Anzahl der favorisierten Pokémon.
-         */
         const favs = await countFavoritePokemons();
-
-        /**
-         * Ermittelt die Anzahl der gesehenen Pokémon.
-         */
         const seen = await countSeenPokemons();
-
-        /**
-         * Ermittelt den am häufigsten favorisierten Pokémon-Typ.
-         */
         const topType = await getMostFavoritedType();
 
         res.json({ favorites: favs, seen, topType });

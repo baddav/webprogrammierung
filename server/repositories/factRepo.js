@@ -1,8 +1,10 @@
+/**
+ * Importiert MySQL-Pool für Datenbankverbindungen.
+ */
 const pool = require('../db/pool')
 
 /**
  * Ruft einen zufälligen Fakt aus der Datenbank ab.
- * @returns {Promise<{length}|*|[{text: string}]>}
  */
 async function getFacts() {
     const [rows] = await pool.query('SELECT text FROM facts ORDER BY RAND() LIMIT 1');

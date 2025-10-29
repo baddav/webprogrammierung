@@ -1,3 +1,6 @@
+/**
+ * Importiert MySQL-Pool für Datenbankverbindungen.
+ */
 const pool = require('../db/pool');
 
 /**
