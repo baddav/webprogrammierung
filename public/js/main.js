@@ -127,8 +127,8 @@ function renderPokemonDetail(p) {
               <div>Attack</div><div>${p.stats.attack}</div>
               <div>Defense</div><div>${p.stats.defense}</div>
               <div>Speed</div><div>${p.stats.speed}</div>
-              <div>Größe</div><div>${p.height}</div>
-              <div>Gewicht</div><div>${p.weight}</div>
+              <div>Height</div><div>${p.height}</div>
+              <div>Weight</div><div>${p.weight}</div>
             </div>
             <button class="fav-btn" id="favBtn" title="Favorisieren">♡</button>
           </div>
