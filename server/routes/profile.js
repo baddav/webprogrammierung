@@ -10,41 +10,18 @@ const express = require('express');
 const router = express.Router();
 
 /**
- * Datenbank-Pool für die Verbindung zur Datenbank.
+ * Importiert Funktionen zum Abrufen von Profilstatistiken aus dem Repository.
  */
-const pool = require('../db/pool');
+const {countFavoritePokemons, countSeenPokemons, getMostFavoritedType} = require("../repositories/profileRepo");
 
 /**
  * Definiert eine GET-Route, die Statistiken über die Pokémon-Datenbank abruft.
  */
 router.get('/stats', async (_req, res) => {
     try {
-        /**
-         * Ermittelt die Anzahl der favorisierten Pokémon.
-         */
-        const [[{ favs }]] = await pool.query('SELECT COUNT(*) AS favs FROM favorites');
-
-        /**
-         * Ermittelt die Anzahl der gesehenen Pokémon.
-         */
-        const [[{ seen }]] = await pool.query('SELECT COUNT(*) AS seen FROM pokemon');
-
-        /**
-         * Ermittelt den am häufigsten favorisierten Pokémon-Typ.
-         */
-        const [rows] = await pool.query(`
-            SELECT pt.type, COUNT(*) as cnt
-            FROM favorites f
-                     JOIN pokemon_types pt ON pt.pokemon_id = f.pokemon_id
-            GROUP BY pt.type
-            ORDER BY cnt DESC
-                LIMIT 1
-        `);
-
-        /**
-         * Der am häufigsten favorisierte Pokémon-Typ.
-         */
-        const topType = rows[0]?.type || null;
+        const favs = await countFavoritePokemons();
+        const seen = await countSeenPokemons();
+        const topType = await getMostFavoritedType();
 
         res.json({ favorites: favs, seen, topType });
     } catch (e) {

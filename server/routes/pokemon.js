@@ -9,9 +9,9 @@ const express = require('express');
 const router = express.Router();
 
 /**
- * Datenbank-Pool für die Verbindung zur Datenbank.
+ * Importiert Funktionen zum Abrufen von Pokémon-Daten aus dem Repository.
  */
-const pool = require('../db/pool');
+const {getPokemonBySearch, getPokemonWithFilters, countPokemonWithFilters, getPokemonById, getPokemonStatsById, getPokemonTypesById} = require("../repositories/pokemonRepo");
 
 /**
  * Definiert eine GET-Route, um eine Liste von Pokémon abzurufen, mit Such-, Filter- und Sortieroptionen.
@@ -20,42 +20,30 @@ router.get('/', async (req, res) => {
     try {
 
         /**
-         * Extrahiert die Abfrageparameter aus der Anfrage.
+         * Extrahiert Such-, Filter- und Sortierparameter aus der Anfrage.
          */
         const { search, page = 1, limit = 20, type, sort = 'id_asc' } = req.query;
 
         /**
-         * Wenn ein Suchbegriff vorhanden ist, führe eine Suche durch und gib die Ergebnisse zurück.
+         * Wenn ein Suchbegriff vorhanden ist, rufe die Suchfunktion auf und gib die Ergebnisse zurück.
          */
         if (search) {
-            const term = `%${search.toLowerCase()}%`;
-            const starts = `${search.toLowerCase()}%`;
-
-            const [rows] = await pool.query(`
-                SELECT id, name, sprite 
-                FROM pokemon 
-                WHERE LOWER(name) LIKE ? 
-                ORDER BY 
-                    (CASE WHEN LOWER(name) LIKE ? THEN 0 ELSE 1 END), 
-                    name ASC
-                LIMIT 10
-            `, [term, starts]);
-
+            const rows = await getPokemonBySearch(search);
             return res.json(rows);
         }
 
         /**
-         * Berechne die Paginierungsparameter.
+         * Berechnet die Paginierungsparameter.
          */
         const p = Math.max(parseInt(page, 10) || 1, 1);
 
         /**
-         * Begrenze die Anzahl der Ergebnisse pro Seite auf einen Bereich zwischen 1 und 50.
+         * Die maximale Anzahl von Einträgen pro Seite, begrenzt auf 50.
          */
         const l = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 50);
 
         /**
-         * Berechnet den Offset für die SQL-Abfrage basierend auf der aktuellen Seite und dem Limit.
+         * Der Offset für die Datenbankabfrage basierend auf der aktuellen Seite und dem Limit.
          */
         const offset = (p - 1) * l;
 
@@ -63,7 +51,7 @@ router.get('/', async (req, res) => {
         const params = [];
 
         /**
-         * Fügt einen Filter für den Pokémon-Typ hinzu, falls der 'type'-Parameter angegeben ist.
+         * Fügt einen Filter für den Pokémon-Typ hinzu, wenn dieser angegeben ist.
          */
         if (type) {
             filters.push('p.id IN (SELECT pokemon_id FROM pokemon_types WHERE type = ?)');
@@ -71,7 +59,7 @@ router.get('/', async (req, res) => {
         }
 
         /**
-         * Bestimmt die Sortierreihenfolge basierend auf dem 'sort'-Parameter.
+         * Bestimmt die Sortierreihenfolge basierend auf dem angegebenen Sortierparameter.
          */
         let orderBy = 'p.id ASC';
         if (sort === 'name_asc') orderBy = 'p.name ASC';
@@ -80,38 +68,10 @@ router.get('/', async (req, res) => {
         else if (sort === 'atk_desc') orderBy = 'ps.attack DESC';
 
         /**
-         * Konstruiert die WHERE-Klausel basierend auf den angegebenen Filtern.
+         * Ruft die gefilterten und sortierten Pokémon-Daten sowie die Gesamtanzahl ab.
          */
-        const whereClause = filters.length > 0 ? `WHERE ${filters.join(' AND ')}` : '';
-        const query = `
-            SELECT p.id, p.name, p.sprite, ps.attack
-            FROM pokemon p
-            JOIN pokemon_stats ps ON ps.pokemon_id = p.id
-            ${whereClause}
-            ORDER BY ${orderBy}
-            LIMIT ? OFFSET ?
-        `;
-        params.push(l, offset);
-
-        /**
-         * SQL-Abfrage, um die Gesamtanzahl der Pokémon zu zählen, die den Filterkriterien entsprechen.
-         */
-        const countQuery = `
-            SELECT COUNT(*) as total
-            FROM pokemon p
-                     JOIN pokemon_stats ps ON ps.pokemon_id = p.id
-                ${whereClause}
-        `;
-
-        /**
-         * Führt die Abfragen aus, um die Pokémon-Daten und die Gesamtanzahl abzurufen.
-         */
-        const [rows] = await pool.query(query, params);
-
-        /**
-         * Ruft die Gesamtanzahl der Pokémon ab, die den Filterkriterien entsprechen.
-         */
-        const [[{ total }]] = await pool.query(countQuery, params.slice(0, -2));
+        const rows = await getPokemonWithFilters(filters, params, orderBy, l, offset);
+        const total = await countPokemonWithFilters(filters, params);
 
         res.json({ items: rows, page: p, limit: l, total });
     } catch (e) {
@@ -139,7 +99,7 @@ router.get('/:id', async (req, res) => {
         /**
          * Ruft die Basisinformationen des Pokémon aus der Datenbank ab.
          */
-        const [[info]] = await pool.query('SELECT * FROM pokemon WHERE id = ?', [id]);
+        const info = await getPokemonById(id);
 
         /**
          * Wenn das Pokémon nicht gefunden wird, gib einen 404-Fehler zurück.
@@ -149,8 +109,8 @@ router.get('/:id', async (req, res) => {
         /**
          * Ruft die Statuswerte und Typen des Pokémon aus der Datenbank ab.
          */
-        const [[stats]] = await pool.query('SELECT hp, attack, defense, speed FROM pokemon_stats WHERE pokemon_id = ?', [id]);
-        const [typesRows] = await pool.query('SELECT type FROM pokemon_types WHERE pokemon_id = ?', [id]);
+        const stats = await getPokemonStatsById(id);
+        const types = await getPokemonTypesById(id);
 
         /**
          * Gibt die Pokémon-Details als JSON-Antwort zurück.
@@ -162,7 +122,7 @@ router.get('/:id', async (req, res) => {
             height: info.height,
             weight: info.weight,
             stats: stats || {},
-            types: typesRows.map(r => r.type)
+            types: types
         });
     } catch (e) {
         console.error(e);
