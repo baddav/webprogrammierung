@@ -13,7 +13,7 @@ Einfacher, funktionsfähiger Pokedex:
 ## Voraussetzungen
 Um dieses Projekt zu starten, müssen Docker und Docker Compose auf dem System installiert sein.
 Beides kann kostenlos über die offizielle [Docker-Website](https://www.docker.com/) heruntergeladen werden.
-
+        
 Prüfen kannst du die Installation mit den Befehlen:
 ```bash
 docker --version
@@ -35,11 +35,11 @@ Dadurch werden die MySQL-Datenbank und der Node.js-Server gestartet.
 Warte nach dem Start etwa 20 bis 30 Sekunden, bis die Datenbank vollständig initialisiert ist.
 
 ### Datenbank befüllen (Seed ausführen)
-Damit die Tabellen und die 151 Pokémon-Daten angelegt werden, führe folgenden Befehl aus:
+Damit die Tabellen und alle Pokémon-Daten angelegt werden, führe folgenden Befehl aus:
 ```bash
 docker compose exec api npm run seed
 ```
-Dieser Befehl erstellt automatisch die Datenbankstruktur (Tabellen) und lädt die ersten 151 Pokémon sowie einige Fakten aus der PokeAPI.
+Dieser Befehl erstellt automatisch die Datenbankstruktur (Tabellen) und lädt alle Pokémon mit den jeweiligen Fakten aus der PokeAPI.
 
 ### Webseite öffnen
 Sobald alles läuft, öffne im Browser:

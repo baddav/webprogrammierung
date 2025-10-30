@@ -102,11 +102,6 @@ router.get('/:id', async (req, res) => {
         const info = await getPokemonById(id);
 
         /**
-         * Wenn das Pokémon nicht gefunden wird, gib einen 404-Fehler zurück.
-         */
-        if (!info) return res.status(404).json({ error: 'Nicht gefunden' });
-
-        /**
          * Ruft die Statuswerte und Typen des Pokémon aus der Datenbank ab.
          */
         const stats = await getPokemonStatsById(id);
@@ -121,7 +116,7 @@ router.get('/:id', async (req, res) => {
             sprite: info.sprite,
             height: info.height,
             weight: info.weight,
-            stats: stats || {},
+            stats: stats,
             types: types
         });
     } catch (e) {

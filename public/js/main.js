@@ -80,10 +80,9 @@ async function toggleFavorite(id, active){
 /**
  * Aktualisiert das Aussehen eines Favoriten-Buttons (Herz-Icon).
  * Parameter btn (Der Button)
- * Parameter active Ob der Favorit aktiv ist.
+ * Parameter active ob der Favorit aktiv ist.
  */
 function updateFavBtn(btn, active) {
-    if (!btn) return;
     btn.textContent = active ? '❤' : '♡';
     btn.classList.toggle('active', active);
 }

@@ -4,7 +4,7 @@
     --black:#000000;
     --white:#FFFFFF;
     --yellow:#E2B007;
-    --gray:#f3f3f3;
+    --gray:#F3F3F3;
 }
 /**
 *Hier ist der Kommentar!
@@ -130,7 +130,7 @@ body{
 /* Buttons und Layout der Seitennavigation der Pokemons (Seite 1 von ...) */
 .pager{ display:flex; justify-content:center; gap:8px; margin:16px 0 }
 button.btn{
-    padding:8px 12px; border:1px solid #f3f3f3; background:var(--white); border-radius:10px; cursor:pointer; font-weight:600;
+    padding:8px 12px; border:1px solid var(--gray); background:var(--white); border-radius:10px; cursor:pointer; font-weight:600;
 }
 button.btn[disabled]{ opacity:.5; cursor:not-allowed }
 /* Layout der Buttons in den Kacheln um Favoriten hinzuzufügen */
