@@ -420,6 +420,11 @@ function initCollection(){
             const data = await json('/api/favorites');
 
             /**
+             * LocalStorage auf Serverstand bringen.
+             */
+            setFavs(data.map(d => d.id));
+
+            /**
              * Wenn keine Favoriten vorhanden sind, wird eine entsprechende Nachricht angezeigt
              */
             if (!data || data.length === 0) {
