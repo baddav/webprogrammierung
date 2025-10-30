@@ -6,9 +6,7 @@
     --yellow:#E2B007;
     --gray:#F3F3F3;
 }
-/**
-*Hier ist der Kommentar!
-*/
+
 /* "*" gilt für alle HTML Elemente: Berechnung der Größe über Inhalt + Padding + Border */
 /* Festlegung eines Standarddesigns für alle Views */
 *{box-sizing:border-box}
