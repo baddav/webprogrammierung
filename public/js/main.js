@@ -438,7 +438,6 @@ function initCollection(){
               <div class="tile" data-id="${d.id}">
                 <img src="${d.sprite || '/public/img/pokeball.svg'}" alt="">
                 <div class="name">${d.name}</div>
-                <div style="margin-top:6px;font-size:12px">ATK: ${d.attack ?? '-'}</div>
                 <button class="fav-btn active" title="Entfernen">❤</button>
               </div>
             `).join('');
