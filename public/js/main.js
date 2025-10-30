@@ -96,7 +96,7 @@ function updateFavBtn(btn, active) {
 async function handleFavToggle(id) {
     let favs = getFavs();
     const isFav = favs.includes(id);
-    const newState = !isFav; // Der neue Status
+    const newState = !isFav;
 
     if (newState) {
         favs.push(id);
@@ -104,10 +104,10 @@ async function handleFavToggle(id) {
         favs = favs.filter(x => x !== id);
     }
 
-    setFavs(favs); // Lokalen Speicher aktualisieren
-    await toggleFavorite(id, newState); // Server synchronisieren
+    setFavs(favs);
+    await toggleFavorite(id, newState);
 
-    return newState; // Neuen Status zurückgeben
+    return newState;
 }
 
 /**
@@ -148,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (page === 'profile') initProfile();
 });
 
-// Search
 /**
  * Initialisiert die Suchseite.
  */
@@ -169,7 +168,7 @@ function initSearch(){
     const renderSuggestions = async (term) => {
         if (!term) { sugList.innerHTML = ''; return; }
         try {
-            const items = await json(`/api/pokemon?search=${encodeURIComponent(term)}`); // Anfrage aufgrund Suchbegriff
+            const items = await json(`/api/pokemon?search=${encodeURIComponent(term)}`);
 
             /**
              * Erzeugt Vorschlagskacheln
@@ -202,7 +201,7 @@ function initSearch(){
             const p = await json(`/api/pokemon/${id}`);
             sugList.innerHTML = '';
 
-            detail.innerHTML = renderPokemonDetail(p); // Verwendet die globale renderPokemonDetail-Funktion, um Pokemon-Karten zu erzeugen
+            detail.innerHTML = renderPokemonDetail(p);
 
             /**
              * Schaut ob Pokemon Favorit ist und zeigt dementsprechend das Herz an oder nicht
@@ -212,7 +211,7 @@ function initSearch(){
             let isFav = favs.includes(p.id);
 
 
-            updateFavBtn(favBtn, isFav); // Verwendet die globale updateFavBtn-Funktion
+            updateFavBtn(favBtn, isFav);
 
             /**
              * Event-Listener verwendet jetzt die globale handleFavToggle-Funktion.
@@ -241,7 +240,6 @@ function initSearch(){
     setInterval(loadFact, 10000);
 }
 
-// Gallery
 /**
  * Initialisiert die Galerie-Seite.
  */
@@ -350,16 +348,16 @@ function initGallery(){
             const p = await json(`/api/pokemon/${id}`);
 
 
-            detail.innerHTML = renderPokemonDetail(p); // Verwendet die globale renderPokemonDetail-Funktion
+            detail.innerHTML = renderPokemonDetail(p);
 
-            popup.classList.remove('hidden'); //Entfernt die hidden-Klasse und blendet das Popup ein
+            popup.classList.remove('hidden');
 
             const favBtn = document.getElementById('favBtn');
             let favs = getFavs();
             let isFav = favs.includes(p.id);
 
 
-            updateFavBtn(favBtn, isFav); // Verwendet die globale updateFavBtn-Funktion
+            updateFavBtn(favBtn, isFav);
 
             /**
              * Event-Listener verwendet nutzt die globale handleFavToggle-Funktion.
@@ -409,7 +407,6 @@ function initGallery(){
     loadPage();
 }
 
-//Collection
 /**
  * Initialisiert die Favoriten-Collection-Seite.
  */
@@ -539,7 +536,6 @@ function initCollection(){
     loadFavs();
 }
 
-//Profil
 /**
  * Initialisiert die Profil-Seite.
  */
