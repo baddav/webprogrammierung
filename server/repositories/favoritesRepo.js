@@ -27,4 +27,4 @@ async function getFavPokemon() {
     return rows;
 }
 
-module.exports = {addPokemon: addFavPokemon, deletePokemon: deleteFavPokemon, getPokemon: getFavPokemon};
+module.exports = {addFavPokemon, deleteFavPokemon, getFavPokemon};

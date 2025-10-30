@@ -11,7 +11,7 @@ const router = express.Router();
 /**
  * Importiert Funktionen zum Verwalten der Favoriten aus dem Repository.
  */
-const {addPokemon, deletePokemon, getPokemon} = require("../repositories/favoritesRepo");
+const {addFavPokemon, deleteFavPokemon, getFavPokemon} = require("../repositories/favoritesRepo");
 
 /**
  * Definiert eine POST-Route, um ein Pokémon zu den Favoriten hinzuzufügen.
@@ -25,7 +25,7 @@ router.post('/:id', async (req, res) => {
         const id = parseInt(req.params.id, 10);
 
         if (!id) return res.status(400).json({ error: 'Ungültige ID' });
-        await addPokemon(id);
+        await addFavPokemon(id);
         res.json({ ok: true });
     } catch (e) {
         console.error(e);
@@ -39,7 +39,7 @@ router.post('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id, 10);
-        await deletePokemon(id);
+        await deleteFavPokemon(id);
         res.json({ ok: true });
     } catch (e) {
         console.error(e);
@@ -52,7 +52,7 @@ router.delete('/:id', async (req, res) => {
  */
 router.get('/', async (_req, res) => {
     try {
-        const rows = await getPokemon();
+        const rows = await getFavPokemon();
         res.json(rows);
     } catch (e) {
         console.error(e);
